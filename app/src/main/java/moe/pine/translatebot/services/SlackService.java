@@ -2,6 +2,7 @@ package moe.pine.translatebot.services;
 
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.properties.SlackProperties;
+import moe.pine.translatebot.slack.ChatMessage;
 import moe.pine.translatebot.slack.Event;
 import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.SlackClient;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 public class SlackService {
+    private static final String POSTING_TEXT_FORMAT = ":jp: %s";
     private static final Pattern EMOTICON_ONLY_TEXT_PATTERN =
         Pattern.compile("^(?:\\s*:[\\w-+]+:)+\\s*$");
 
@@ -79,8 +81,14 @@ public class SlackService {
             .ifPresent(translatedText -> {
                 log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
 
-                final String postingText = ":flag-jp: " + translatedText;
-                slackClient.postMessage(messageEvent.getChannel(), postingText);
+                final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
+                final ChatMessage chatMessage =
+                    ChatMessage.builder()
+                        .channel(messageEvent.getChannel())
+                        .text(postingText)
+                        .build();
+
+                slackClient.postMessage(chatMessage);
             });
     }
 }
