@@ -1,0 +1,4 @@
+dependencies {
+    // Cloud Translation
+    implementation 'com.google.cloud:google-cloud-translate'
+}

@@ -2,3 +2,8 @@ rootProject.name = 'translatebot'
 
 include ':app'
 
+include ':lib-slack'
+project(':lib-slack').projectDir = new File(settingsDir, '/libs/slack')
+
+include ':lib-translation'
+project(':lib-translation').projectDir = new File(settingsDir, '/libs/translation')
