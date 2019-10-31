@@ -62,6 +62,11 @@ subprojects {
             dependency 'org.apache.commons:commons-lang3:3.8.1'
             dependency 'org.apache.commons:commons-collections4:4.3'
 
+            // Slack
+            dependency 'com.github.seratch:jslack:3.0.1'
+            dependency 'javax.websocket:javax.websocket-api:1.1'
+            dependency 'org.glassfish.tyrus.bundles:tyrus-standalone-client:1.13'
+
             // Utilities
             dependency "org.projectlombok:lombok:$lombokVersion"
             dependency 'moe.pine:spring-cache-interceptors:0.1.2'
