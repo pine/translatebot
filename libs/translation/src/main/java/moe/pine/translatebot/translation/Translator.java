@@ -62,6 +62,7 @@ public class Translator {
             TranslateTextRequest.newBuilder()
                 .setParent(locationName.toString())
                 .setMimeType("text/plain")
+                .setSourceLanguageCode(Locale.ENGLISH.getLanguage())
                 .setTargetLanguageCode(Locale.JAPANESE.getLanguage())
                 .addContents(content)
                 .build();
