@@ -53,23 +53,7 @@ public class Translator {
         }
     }
 
-    public boolean isJapanese(final String content) {
-        final DetectLanguageRequest detectLanguageRequest =
-            DetectLanguageRequest.newBuilder()
-                .setParent(locationName.toString())
-                .setMimeType("text/plain")
-                .setContent(content)
-                .build();
-
-        final DetectLanguageResponse detectLanguageResponse =
-            translationServiceClient.detectLanguage(detectLanguageRequest);
-        final List<DetectedLanguage> detectedLanguages = detectLanguageResponse.getLanguagesList();
-
-        return detectedLanguages.stream()
-            .anyMatch(v -> v.getLanguageCode().equals(Locale.JAPANESE.getLanguage()));
-    }
-
-    public Optional<String> translateToJapanese(final String content) {
+    public Optional<String> translate(final String content) {
         if (StringUtils.isEmpty(content)) {
             return Optional.empty();
         }

@@ -71,13 +71,7 @@ public class SlackService {
         }
 
         final String text = messageEvent.getText();
-        final boolean isJapanese = translator.isJapanese(text);
-        if (isJapanese) {
-            log.info("\"{}\" was already guessed to be in Japanese.", text);
-            return;
-        }
-
-        translator.translateToJapanese(text)
+        translator.translate(text)
             .ifPresent(translatedText -> {
                 log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
 
