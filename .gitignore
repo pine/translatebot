@@ -4,3 +4,4 @@ build/
 out/
 
 /app/src/main/resources/application-local.yml
+/app/src/main/resources/gcp-credentials.json
