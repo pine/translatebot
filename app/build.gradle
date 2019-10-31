@@ -28,11 +28,6 @@ dependencies {
     implementation 'org.apache.commons:commons-collections4'
     implementation 'org.apache.commons:commons-lang3'
 
-    // Slack
-    implementation 'com.github.seratch:jslack'
-    implementation 'javax.websocket:javax.websocket-api'
-    implementation 'org.glassfish.tyrus.bundles:tyrus-standalone-client'
-
     // Utilities
     implementation 'com.google.guava:guava'
 

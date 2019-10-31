@@ -84,12 +84,18 @@ public class Translator {
 
         final TranslateTextResponse translateTextResponse =
             translationServiceClient.translateText(translateTextRequest);
+        log.info("{}", translateTextRequest);
 
         final List<Translation> translations = translateTextResponse.getTranslationsList();
         if (translations.isEmpty()) {
             return Optional.empty();
         }
 
-        return Optional.of(translations.get(0).getTranslatedText());
+        final String translatedText = translations.get(0).getTranslatedText();
+        if (StringUtils.isEmpty(translatedText)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(translatedText);
     }
 }

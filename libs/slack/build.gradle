@@ -1,0 +1,12 @@
+dependencies {
+    // Slack
+    implementation 'com.github.seratch:jslack'
+    implementation 'javax.websocket:javax.websocket-api'
+    implementation 'org.glassfish.tyrus.bundles:tyrus-standalone-client'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Apache Commons
+    implementation 'org.apache.commons:commons-lang3'
+}

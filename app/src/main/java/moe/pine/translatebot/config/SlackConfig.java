@@ -1,29 +1,20 @@
 package moe.pine.translatebot.config;
 
-import com.github.seratch.jslack.Slack;
-import com.github.seratch.jslack.api.rtm.RTMClient;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.properties.SlackProperties;
+import moe.pine.translatebot.slack.SlackClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.IOException;
 
 @Slf4j
 @Configuration
 @EnableConfigurationProperties(SlackProperties.class)
 public class SlackConfig {
     @Bean
-    public Slack slack() {
-        return new Slack();
-    }
-
-    @Bean(destroyMethod = "disconnect")
-    public RTMClient rtmClient(
-            final Slack slack,
-            final SlackProperties slackProperties
-    ) throws IOException {
-        return slack.rtm(slackProperties.getToken());
+    public SlackClient slackClient(
+        final SlackProperties slackProperties
+    ) throws Exception {
+        return new SlackClient(slackProperties.getToken());
     }
 }
