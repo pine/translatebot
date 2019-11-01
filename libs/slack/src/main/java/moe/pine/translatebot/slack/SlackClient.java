@@ -28,32 +28,46 @@ public class SlackClient {
     private final MethodsClient methodsClient;
 
     private final ChatPostMessageRequestConverter chatPostMessageRequestConverter =
-            new ChatPostMessageRequestConverter();
+        new ChatPostMessageRequestConverter();
     private final ChatPostMessageResponseConverter chatPostMessageResponseConverter =
-            new ChatPostMessageResponseConverter();
+        new ChatPostMessageResponseConverter();
     private final List<Consumer<Event>> eventListeners = new ArrayList<>();
 
     private static final RetryTemplate RETRY_TEMPLATE =
-            new RetryTemplate() {{
-                final Map<Class<? extends Throwable>, Boolean> retryableExceptions =
-                        Map.of(SlackClientException.class, true);
-                final RetryPolicy retryPolicy = new SimpleRetryPolicy(5, retryableExceptions);
-                setRetryPolicy(retryPolicy);
+        new RetryTemplate() {{
+            final Map<Class<? extends Throwable>, Boolean> retryableExceptions =
+                Map.of(SlackClientException.class, true);
+            final RetryPolicy retryPolicy = new SimpleRetryPolicy(5, retryableExceptions);
+            setRetryPolicy(retryPolicy);
 
-                final ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
-                backOffPolicy.setInitialInterval(500);
-                backOffPolicy.setMultiplier(2.0);
-                setBackOffPolicy(backOffPolicy);
-            }};
+            final ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
+            backOffPolicy.setInitialInterval(500);
+            backOffPolicy.setMultiplier(2.0);
+            setBackOffPolicy(backOffPolicy);
+        }};
 
-    public SlackClient(final String token) throws Exception {
-        rtmClient = new Slack().rtm(token);
+    public SlackClient(final String token) {
+        methodsClient = Slack.getInstance().methods(token);
+        rtmClient = RETRY_TEMPLATE.execute(ctx -> {
+            try {
+                return new Slack().rtm(token);
+            } catch (IOException e) {
+                throw new SlackClientException(e);
+            }
+        });
+
         rtmClient.addMessageHandler(this::onEvent);
         rtmClient.addErrorHandler(this::onError);
         rtmClient.addCloseHandler(this::onClose);
-        rtmClient.connect();
 
-        methodsClient = Slack.getInstance().methods(token);
+        RETRY_TEMPLATE.execute(ctx -> {
+            try {
+                rtmClient.connect();
+                return null;
+            } catch (IOException | DeploymentException e) {
+                throw new SlackClientException(e);
+            }
+        });
     }
 
     private void onEvent(final String content) {
@@ -61,7 +75,7 @@ public class SlackClient {
 
         final Optional<Event> eventOpt = Events.parse(content);
         eventOpt.ifPresent(event ->
-                eventListeners.forEach(listener -> listener.accept(event)));
+            eventListeners.forEach(listener -> listener.accept(event)));
     }
 
     private void onError(final Throwable error) {
@@ -92,16 +106,16 @@ public class SlackClient {
 
     public OutgoingMessageResult postMessage(final OutgoingMessage outgoingMessage) {
         final ChatPostMessageRequest request =
-                chatPostMessageRequestConverter.fromMessage(outgoingMessage);
+            chatPostMessageRequestConverter.fromMessage(outgoingMessage);
 
         final ChatPostMessageResponse response =
-                RETRY_TEMPLATE.execute(ctx -> {
-                    try {
-                        return methodsClient.chatPostMessage(request);
-                    } catch (IOException | SlackApiException e) {
-                        throw new SlackClientException(e);
-                    }
-                });
+            RETRY_TEMPLATE.execute(ctx -> {
+                try {
+                    return methodsClient.chatPostMessage(request);
+                } catch (IOException | SlackApiException e) {
+                    throw new SlackClientException(e);
+                }
+            });
 
         return chatPostMessageResponseConverter.toResult(response);
     }
