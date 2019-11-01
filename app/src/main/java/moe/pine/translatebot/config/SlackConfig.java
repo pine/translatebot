@@ -14,7 +14,7 @@ public class SlackConfig {
     @Bean
     public SlackClient slackClient(
         final SlackProperties slackProperties
-    ) throws Exception {
+    ) {
         return new SlackClient(slackProperties.getToken());
     }
 }
