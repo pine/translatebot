@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -25,30 +24,26 @@ public class Translator {
     private final LocationName locationName;
 
     public Translator(
-            final InputStream credentialsStream,
-            final String projectId,
-            final String location
-    ) {
-        try {
-            final GoogleCredentials credentials =
-                    GoogleCredentials.fromStream(credentialsStream);
-            final CredentialsProvider credentialsProvider =
-                    FixedCredentialsProvider.create(credentials);
-            final TranslationServiceSettings translationServiceSettings =
-                    TranslationServiceSettings.newBuilder()
-                            .setCredentialsProvider(credentialsProvider)
-                            .build();
+        final InputStream credentialsStream,
+        final String projectId,
+        final String location
+    ) throws IOException {
+        final GoogleCredentials credentials =
+            GoogleCredentials.fromStream(credentialsStream);
+        final CredentialsProvider credentialsProvider =
+            FixedCredentialsProvider.create(credentials);
+        final TranslationServiceSettings translationServiceSettings =
+            TranslationServiceSettings.newBuilder()
+                .setCredentialsProvider(credentialsProvider)
+                .build();
 
-            translationServiceClient =
-                    TranslationServiceClient.create(translationServiceSettings);
-            locationName =
-                    LocationName.newBuilder()
-                            .setProject(projectId)
-                            .setLocation(location)
-                            .build();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        translationServiceClient =
+            TranslationServiceClient.create(translationServiceSettings);
+        locationName =
+            LocationName.newBuilder()
+                .setProject(projectId)
+                .setLocation(location)
+                .build();
     }
 
     public Optional<String> translate(final String content) {
@@ -57,16 +52,16 @@ public class Translator {
         }
 
         final TranslateTextRequest translateTextRequest =
-                TranslateTextRequest.newBuilder()
-                        .setParent(locationName.toString())
-                        .setMimeType("text/plain")
-                        .setSourceLanguageCode(Locale.ENGLISH.getLanguage())
-                        .setTargetLanguageCode(Locale.JAPANESE.getLanguage())
-                        .addContents(content)
-                        .build();
+            TranslateTextRequest.newBuilder()
+                .setParent(locationName.toString())
+                .setMimeType("text/plain")
+                .setSourceLanguageCode(Locale.ENGLISH.getLanguage())
+                .setTargetLanguageCode(Locale.JAPANESE.getLanguage())
+                .addContents(content)
+                .build();
 
         final TranslateTextResponse translateTextResponse =
-                translationServiceClient.translateText(translateTextRequest);
+            translationServiceClient.translateText(translateTextRequest);
 
         final List<Translation> translations = translateTextResponse.getTranslationsList();
         if (translations.isEmpty()) {
