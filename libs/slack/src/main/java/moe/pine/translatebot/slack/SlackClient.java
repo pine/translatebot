@@ -27,7 +27,10 @@ public class SlackClient {
     private final RTMClient rtmClient;
     private final MethodsClient methodsClient;
 
-    private final ChatPostMessageRequestConverter chatPostMessageRequestConverter = new ChatPostMessageRequestConverter();
+    private final ChatPostMessageRequestConverter chatPostMessageRequestConverter =
+            new ChatPostMessageRequestConverter();
+    private final ChatPostMessageResponseConverter chatPostMessageResponseConverter =
+            new ChatPostMessageResponseConverter();
     private final List<Consumer<Event>> eventListeners = new ArrayList<>();
 
     private static final RetryTemplate RETRY_TEMPLATE =
@@ -88,21 +91,18 @@ public class SlackClient {
     }
 
     public OutgoingMessageResult postMessage(final OutgoingMessage outgoingMessage) {
-        final ChatPostMessageRequest messageRequest =
-                chatPostMessageRequestConverter.from(outgoingMessage);
+        final ChatPostMessageRequest request =
+                chatPostMessageRequestConverter.fromMessage(outgoingMessage);
 
-        final ChatPostMessageResponse chatPostMessageResponse =
+        final ChatPostMessageResponse response =
                 RETRY_TEMPLATE.execute(ctx -> {
                     try {
-                        return methodsClient.chatPostMessage(messageRequest);
+                        return methodsClient.chatPostMessage(request);
                     } catch (IOException | SlackApiException e) {
                         throw new SlackClientException(e);
                     }
                 });
 
-        return OutgoingMessageResult.builder()
-                .channel(chatPostMessageResponse.getChannel())
-                .ts(chatPostMessageResponse.getTs())
-                .build();
+        return chatPostMessageResponseConverter.toResult(response);
     }
 }
