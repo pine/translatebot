@@ -65,11 +65,9 @@ public class SlackClient {
         final ChatPostMessageRequest messageRequest =
                 ChatPostMessageRequest.builder()
                         .username(outgoingMessage.getUsername())
-                        .threadTs(outgoingMessage.getThreadTs())
                         .channel(outgoingMessage.getChannel())
                         .text(outgoingMessage.getText())
-                        .iconUrl(outgoingMessage.getIconUrl())
-                        .replyBroadcast(outgoingMessage.isReplyBroadcast())
+                        .iconUrl("https://i.imgur.com/IpOE5eC.png")
                         .build();
 
         try {

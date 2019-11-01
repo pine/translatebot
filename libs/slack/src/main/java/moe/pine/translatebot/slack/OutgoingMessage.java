@@ -7,9 +7,6 @@ import lombok.Value;
 @Builder
 public class OutgoingMessage {
     private String username;
-    private String threadTs;
     private String channel;
     private String text;
-    private String iconUrl;
-    private boolean replyBroadcast;
 }
