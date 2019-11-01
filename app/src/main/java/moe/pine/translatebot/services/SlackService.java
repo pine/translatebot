@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 public class SlackService {
     private static final String POSTING_TEXT_FORMAT = ":jp: %s";
     private static final Pattern EMOTICON_ONLY_TEXT_PATTERN =
-            Pattern.compile("^(?:\\s*:[\\w-+]+:)+\\s*$");
+        Pattern.compile("^(?:\\s*:[\\w-+]+:)+\\s*$");
 
     private final SlackProperties slackProperties;
     private final SlackClient slackClient;
@@ -30,10 +30,10 @@ public class SlackService {
     private final Instant startupTime;
 
     public SlackService(
-            final SlackProperties slackProperties,
-            final SlackClient slackClient,
-            final Translator translator,
-            final Clock clock
+        final SlackProperties slackProperties,
+        final SlackClient slackClient,
+        final Translator translator,
+        final Clock clock
     ) {
         this.slackProperties = slackProperties;
         this.slackClient = slackClient;
@@ -44,8 +44,6 @@ public class SlackService {
     }
 
     private void onEvent(final Event event) {
-        log.info("onEvent: {}", event);
-
         if (event instanceof MessageEvent) {
             onMessageEvent((MessageEvent) event);
         }
@@ -63,7 +61,7 @@ public class SlackService {
         }
 
         if (StringUtils.isEmpty(messageEvent.getSubtype()) ||
-                Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype())) {
+            Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype())) {
             onMessageSentEvent(messageEvent);
         }
     }
@@ -76,21 +74,21 @@ public class SlackService {
 
         final String text = messageEvent.getText();
         translator.translate(text)
-                .ifPresent(translatedText -> {
-                    log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
+            .ifPresent(translatedText -> {
+                log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
 
-                    final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
-                    final OutgoingMessage outgoingMessage =
-                            OutgoingMessage.builder()
-                                    .username(slackProperties.getUsername())
-                                    .threadTs(messageEvent.getThreadTs())
-                                    .channel(messageEvent.getChannel())
-                                    .text(postingText)
-                                    .iconUrl(slackProperties.getIconUrl())
-                                    .replyBroadcast(false)
-                                    .build();
+                final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
+                final OutgoingMessage outgoingMessage =
+                    OutgoingMessage.builder()
+                        .username(slackProperties.getUsername())
+                        .threadTs(messageEvent.getThreadTs())
+                        .channel(messageEvent.getChannel())
+                        .text(postingText)
+                        .iconUrl(slackProperties.getIconUrl())
+                        .replyBroadcast(false)
+                        .build();
 
-                    slackClient.postMessage(outgoingMessage);
-                });
+                slackClient.postMessage(outgoingMessage);
+            });
     }
 }

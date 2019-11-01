@@ -74,6 +74,7 @@ public class SlackClient {
     }
 
     private void onEvent(final String content) {
+        log.info("New event received: {}", content);
         throwIfAlreadyClosed();
 
         final Optional<Event> eventOpt = Events.parse(content);
