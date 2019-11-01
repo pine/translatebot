@@ -3,9 +3,6 @@ package moe.pine.translatebot.translation;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.translate.v3beta1.DetectLanguageRequest;
-import com.google.cloud.translate.v3beta1.DetectLanguageResponse;
-import com.google.cloud.translate.v3beta1.DetectedLanguage;
 import com.google.cloud.translate.v3beta1.LocationName;
 import com.google.cloud.translate.v3beta1.TranslateTextRequest;
 import com.google.cloud.translate.v3beta1.TranslateTextResponse;
@@ -28,26 +25,27 @@ public class Translator {
     private final LocationName locationName;
 
     public Translator(
-        final InputStream credentialsStream,
-        final String projectId,
-        final String location
+            final InputStream credentialsStream,
+            final String projectId,
+            final String location
     ) {
         try {
             final GoogleCredentials credentials =
-                GoogleCredentials.fromStream(credentialsStream);
-            final CredentialsProvider credentialsProvider = FixedCredentialsProvider.create(credentials);
+                    GoogleCredentials.fromStream(credentialsStream);
+            final CredentialsProvider credentialsProvider =
+                    FixedCredentialsProvider.create(credentials);
             final TranslationServiceSettings translationServiceSettings =
-                TranslationServiceSettings.newBuilder()
-                    .setCredentialsProvider(credentialsProvider)
-                    .build();
+                    TranslationServiceSettings.newBuilder()
+                            .setCredentialsProvider(credentialsProvider)
+                            .build();
 
             translationServiceClient =
-                TranslationServiceClient.create(translationServiceSettings);
+                    TranslationServiceClient.create(translationServiceSettings);
             locationName =
-                LocationName.newBuilder()
-                    .setProject(projectId)
-                    .setLocation(location)
-                    .build();
+                    LocationName.newBuilder()
+                            .setProject(projectId)
+                            .setLocation(location)
+                            .build();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -59,17 +57,16 @@ public class Translator {
         }
 
         final TranslateTextRequest translateTextRequest =
-            TranslateTextRequest.newBuilder()
-                .setParent(locationName.toString())
-                .setMimeType("text/plain")
-                .setSourceLanguageCode(Locale.ENGLISH.getLanguage())
-                .setTargetLanguageCode(Locale.JAPANESE.getLanguage())
-                .addContents(content)
-                .build();
+                TranslateTextRequest.newBuilder()
+                        .setParent(locationName.toString())
+                        .setMimeType("text/plain")
+                        .setSourceLanguageCode(Locale.ENGLISH.getLanguage())
+                        .setTargetLanguageCode(Locale.JAPANESE.getLanguage())
+                        .addContents(content)
+                        .build();
 
         final TranslateTextResponse translateTextResponse =
-            translationServiceClient.translateText(translateTextRequest);
-        log.info("{}", translateTextRequest);
+                translationServiceClient.translateText(translateTextRequest);
 
         final List<Translation> translations = translateTextResponse.getTranslationsList();
         if (translations.isEmpty()) {
