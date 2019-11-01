@@ -1,9 +1,5 @@
 apply plugin: 'org.springframework.boot'
 
-bootRun {
-    jvmArgs = ['--illegal-access=deny']
-}
-
 configurations {
     implementation.exclude module: 'spring-boot-starter-tomcat'
 }
@@ -15,7 +11,7 @@ dependencies {
     // Spring Framework
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.boot:spring-boot-starter-undertow'
+    implementation 'org.springframework.boot:spring-boot-starter-jetty'
     implementation 'org.springframework.retry:spring-retry'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
