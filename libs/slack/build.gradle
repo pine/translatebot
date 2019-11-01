@@ -1,4 +1,7 @@
 dependencies {
+    // Spring Framework
+    implementation 'org.springframework.retry:spring-retry'
+
     // Slack
     implementation 'com.github.seratch:jslack'
     implementation 'javax.websocket:javax.websocket-api'
