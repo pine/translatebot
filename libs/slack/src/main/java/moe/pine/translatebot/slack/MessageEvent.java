@@ -10,6 +10,10 @@ import lombok.Data;
 public class MessageEvent implements Event {
     public static final String TYPE = "message";
 
+    public static abstract class Subtypes {
+        public static final String THREAD_BROADCAST = "thread_broadcast";
+    }
+
     private String type;
     private String channel;
     private String user;

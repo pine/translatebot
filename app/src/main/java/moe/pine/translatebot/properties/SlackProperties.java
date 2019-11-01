@@ -10,7 +10,8 @@ import java.util.Set;
 @Data
 @ConfigurationProperties("slack")
 public class SlackProperties {
+    private @NotNull Set<String> channels;
+    private @NotBlank String iconUrl;
     private @NotBlank String token;
     private @NotBlank String username;
-    private @NotNull Set<String> channels;
 }
