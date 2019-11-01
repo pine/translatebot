@@ -2,6 +2,9 @@ rootProject.name = 'translatebot'
 
 include ':app'
 
+include ':lib-log'
+project(':lib-log').projectDir = new File(settingsDir, '/libs/log')
+
 include ':lib-retry-utils'
 project(':lib-retry-utils').projectDir = new File(settingsDir, '/libs/retry-utils')
 

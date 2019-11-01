@@ -5,6 +5,7 @@ configurations {
 }
 
 dependencies {
+    implementation project(':lib-log')
     implementation project(':lib-slack')
     implementation project(':lib-translation')
 
