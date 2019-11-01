@@ -1,5 +1,9 @@
 dependencies {
+    // Sub-projects
+    implementation project(':lib-retry-utils')
+
     // Spring Framework
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.retry:spring-retry'
 
     // Slack

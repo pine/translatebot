@@ -7,6 +7,7 @@ import com.github.seratch.jslack.api.methods.request.chat.ChatPostMessageRequest
 import com.github.seratch.jslack.api.methods.response.chat.ChatPostMessageResponse;
 import com.github.seratch.jslack.api.rtm.RTMClient;
 import lombok.extern.slf4j.Slf4j;
+import moe.pine.translatebot.retryutils.RetryTemplateFactory;
 import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
@@ -19,11 +20,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 @Slf4j
 public class SlackClient {
+    private final RetryTemplate retryTemplate;
     private final RTMClient rtmClient;
     private final MethodsClient methodsClient;
 
@@ -33,34 +36,30 @@ public class SlackClient {
         new ChatPostMessageResponseConverter();
     private final List<Consumer<Event>> eventListeners = new ArrayList<>();
 
-    private static final RetryTemplate RETRY_TEMPLATE =
-        new RetryTemplate() {{
-            final Map<Class<? extends Throwable>, Boolean> retryableExceptions =
-                Map.of(SlackClientException.class, true);
-            final RetryPolicy retryPolicy = new SimpleRetryPolicy(5, retryableExceptions);
-            setRetryPolicy(retryPolicy);
-
-            final ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
-            backOffPolicy.setInitialInterval(500);
-            backOffPolicy.setMultiplier(2.0);
-            setBackOffPolicy(backOffPolicy);
-        }};
-
     public SlackClient(final String token) {
+        this(token,
+            RetryTemplateFactory.create(5, 500, 2.0, SlackClientException.class));
+    }
+
+    SlackClient(
+        final String token,
+        final RetryTemplate retryTemplate
+    ) {
+        this.retryTemplate = Objects.requireNonNull(retryTemplate);
+
         methodsClient = Slack.getInstance().methods(token);
-        rtmClient = RETRY_TEMPLATE.execute(ctx -> {
+        rtmClient = retryTemplate.execute(ctx -> {
             try {
                 return new Slack().rtm(token);
             } catch (IOException e) {
                 throw new SlackClientException(e);
             }
         });
-
         rtmClient.addMessageHandler(this::onEvent);
         rtmClient.addErrorHandler(this::onError);
         rtmClient.addCloseHandler(this::onClose);
 
-        RETRY_TEMPLATE.execute(ctx -> {
+        retryTemplate.execute(ctx -> {
             try {
                 rtmClient.connect();
                 return null;
@@ -109,7 +108,7 @@ public class SlackClient {
             chatPostMessageRequestConverter.fromMessage(outgoingMessage);
 
         final ChatPostMessageResponse response =
-            RETRY_TEMPLATE.execute(ctx -> {
+            retryTemplate.execute(ctx -> {
                 try {
                     return methodsClient.chatPostMessage(request);
                 } catch (IOException | SlackApiException e) {

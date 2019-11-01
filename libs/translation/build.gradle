@@ -1,4 +1,10 @@
 dependencies {
+    // Sub-projects
+    implementation project(':lib-retry-utils')
+
+    // Spring Framework
+    implementation 'org.springframework.retry:spring-retry'
+
     // Cloud Translation
     implementation 'com.google.cloud:google-cloud-translate'
 }
