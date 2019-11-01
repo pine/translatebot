@@ -1,14 +1,18 @@
 package moe.pine.translatebot.slack;
 
 import com.github.seratch.jslack.Slack;
+import com.github.seratch.jslack.api.methods.SlackApiException;
 import com.github.seratch.jslack.api.methods.request.chat.ChatPostMessageRequest;
 import com.github.seratch.jslack.api.rtm.RTMClient;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.websocket.CloseReason;
+import javax.websocket.DeploymentException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -22,6 +26,8 @@ public class SlackClient {
 
         rtmClient = new Slack().rtm(token);
         rtmClient.addMessageHandler(this::onEvent);
+        rtmClient.addErrorHandler(this::onError);
+        rtmClient.addCloseHandler(this::onClose);
         rtmClient.connect();
     }
 
@@ -30,7 +36,25 @@ public class SlackClient {
 
         final Optional<Event> eventOpt = Events.parse(content);
         eventOpt.ifPresent(event ->
-            eventListeners.forEach(listener -> listener.accept(event)));
+                eventListeners.forEach(listener -> listener.accept(event)));
+    }
+
+    private void onError(final Throwable error) {
+        error.printStackTrace();
+        try {
+            rtmClient.reconnect();
+        } catch (IOException | SlackApiException | URISyntaxException | DeploymentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void onClose(final CloseReason closeReason) {
+        log.error("{}", closeReason);
+        try {
+            rtmClient.reconnect();
+        } catch (IOException | SlackApiException | URISyntaxException | DeploymentException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addEventListener(final Consumer<Event> listener) {
@@ -39,12 +63,12 @@ public class SlackClient {
 
     public void postMessage(final ChatMessage chatMessage) {
         final ChatPostMessageRequest messageRequest =
-            ChatPostMessageRequest.builder()
-                .username("translatebot")
-                .channel(chatMessage.getChannel())
-                .text(chatMessage.getText())
-                .iconUrl("https://i.imgur.com/IpOE5eC.png")
-                .build();
+                ChatPostMessageRequest.builder()
+                        .username("translatebot")
+                        .channel(chatMessage.getChannel())
+                        .text(chatMessage.getText())
+                        .iconUrl("https://i.imgur.com/IpOE5eC.png")
+                        .build();
 
         try {
             Slack.getInstance().methods(token).chatPostMessage(messageRequest);
