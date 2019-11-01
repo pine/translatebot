@@ -80,7 +80,6 @@ public class SlackService {
                     log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
 
                     final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
-                    final boolean replyBroadcast = Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype());
                     final OutgoingMessage outgoingMessage =
                             OutgoingMessage.builder()
                                     .username(slackProperties.getUsername())
@@ -88,7 +87,7 @@ public class SlackService {
                                     .channel(messageEvent.getChannel())
                                     .text(postingText)
                                     .iconUrl(slackProperties.getIconUrl())
-                                    .replyBroadcast(replyBroadcast)
+                                    .replyBroadcast(false)
                                     .build();
 
                     slackClient.postMessage(outgoingMessage);
