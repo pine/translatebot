@@ -8,25 +8,23 @@ import com.github.seratch.jslack.api.methods.response.chat.ChatPostMessageRespon
 import com.github.seratch.jslack.api.rtm.RTMClient;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.retryutils.RetryTemplateFactory;
-import org.springframework.retry.RetryPolicy;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
 import javax.websocket.CloseReason;
 import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 @Slf4j
 public class SlackClient {
     private final RetryTemplate retryTemplate;
+    private final RetryTemplate unlimitedRetryTemplate;
     private final RTMClient rtmClient;
     private final MethodsClient methodsClient;
 
@@ -34,18 +32,24 @@ public class SlackClient {
         new ChatPostMessageRequestConverter();
     private final ChatPostMessageResponseConverter chatPostMessageResponseConverter =
         new ChatPostMessageResponseConverter();
-    private final List<Consumer<Event>> eventListeners = new ArrayList<>();
+    private final List<Consumer<Event>> eventListeners = new CopyOnWriteArrayList<>();
+    private final AtomicBoolean closed = new AtomicBoolean();
 
     public SlackClient(final String token) {
         this(token,
-            RetryTemplateFactory.create(5, 500, 2.0, SlackClientException.class));
+            RetryTemplateFactory.create(
+                5, 500, 2.0, SlackClientException.class),
+            RetryTemplateFactory.createUnlimited(
+                500, 60 * 1000, 2.0, SlackClientException.class));
     }
 
     SlackClient(
         final String token,
-        final RetryTemplate retryTemplate
+        final RetryTemplate retryTemplate,
+        final RetryTemplate unlimitedRetryTemplate
     ) {
         this.retryTemplate = Objects.requireNonNull(retryTemplate);
+        this.unlimitedRetryTemplate = Objects.requireNonNull(unlimitedRetryTemplate);
 
         methodsClient = Slack.getInstance().methods(token);
         rtmClient = retryTemplate.execute(ctx -> {
@@ -70,7 +74,7 @@ public class SlackClient {
     }
 
     private void onEvent(final String content) {
-        // log.debug("onEvent: {}", content);
+        throwIfAlreadyClosed();
 
         final Optional<Event> eventOpt = Events.parse(content);
         eventOpt.ifPresent(event ->
@@ -78,21 +82,22 @@ public class SlackClient {
     }
 
     private void onError(final Throwable error) {
-        error.printStackTrace();
-        try {
-            rtmClient.reconnect();
-        } catch (IOException | SlackApiException | URISyntaxException | DeploymentException e) {
-            e.printStackTrace();
-        }
+        log.error("An error has occurred.", error);
     }
 
     private void onClose(final CloseReason closeReason) {
-        log.error("{}", closeReason);
-        try {
-            rtmClient.reconnect();
-        } catch (IOException | SlackApiException | URISyntaxException | DeploymentException e) {
-            e.printStackTrace();
-        }
+        log.warn("The socket has been closed. The reason is {}. Trying reconnect.", closeReason);
+
+        unlimitedRetryTemplate.execute(ctx -> {
+            throwIfAlreadyClosed();
+            try {
+                rtmClient.reconnect();
+                return null;
+            } catch (IOException | SlackApiException | URISyntaxException | DeploymentException e) {
+                log.warn("Connecting failed. Number of retries is {}", ctx.getRetryCount(), e);
+                throw new SlackClientException(e);
+            }
+        });
     }
 
     public void addEventListener(final Consumer<Event> listener) {
@@ -109,6 +114,7 @@ public class SlackClient {
 
         final ChatPostMessageResponse response =
             retryTemplate.execute(ctx -> {
+                throwIfAlreadyClosed();
                 try {
                     return methodsClient.chatPostMessage(request);
                 } catch (IOException | SlackApiException e) {
@@ -117,5 +123,18 @@ public class SlackClient {
             });
 
         return chatPostMessageResponseConverter.toResult(response);
+    }
+
+    public void close() throws IOException {
+        if (closed.compareAndSet(false, true)) {
+            log.info("Closing the socket.");
+            rtmClient.close();
+        }
+    }
+
+    private void throwIfAlreadyClosed() {
+        if (closed.get()) {
+            throw new IllegalStateException("The server has already been shutdown.");
+        }
     }
 }
