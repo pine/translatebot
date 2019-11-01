@@ -11,5 +11,6 @@ import java.util.Set;
 @ConfigurationProperties("slack")
 public class SlackProperties {
     private @NotBlank String token;
+    private @NotBlank String username;
     private @NotNull Set<String> channels;
 }

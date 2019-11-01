@@ -61,12 +61,12 @@ public class SlackClient {
         eventListeners.add(listener);
     }
 
-    public void postMessage(final ChatMessage chatMessage) {
+    public void postMessage(final OutgoingMessage outgoingMessage) {
         final ChatPostMessageRequest messageRequest =
                 ChatPostMessageRequest.builder()
-                        .username("translatebot")
-                        .channel(chatMessage.getChannel())
-                        .text(chatMessage.getText())
+                        .username(outgoingMessage.getUsername())
+                        .channel(outgoingMessage.getChannel())
+                        .text(outgoingMessage.getText())
                         .iconUrl("https://i.imgur.com/IpOE5eC.png")
                         .build();
 

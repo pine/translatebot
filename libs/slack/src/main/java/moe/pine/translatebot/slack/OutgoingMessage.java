@@ -5,7 +5,8 @@ import lombok.Value;
 
 @Value
 @Builder
-public class ChatMessage {
+public class OutgoingMessage {
+    private String username;
     private String channel;
     private String text;
 }

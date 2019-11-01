@@ -2,9 +2,9 @@ package moe.pine.translatebot.services;
 
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.properties.SlackProperties;
-import moe.pine.translatebot.slack.ChatMessage;
 import moe.pine.translatebot.slack.Event;
 import moe.pine.translatebot.slack.MessageEvent;
+import moe.pine.translatebot.slack.OutgoingMessage;
 import moe.pine.translatebot.slack.SlackClient;
 import moe.pine.translatebot.translation.Translator;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class SlackService {
     private static final String POSTING_TEXT_FORMAT = ":jp: %s";
     private static final Pattern EMOTICON_ONLY_TEXT_PATTERN =
-        Pattern.compile("^(?:\\s*:[\\w-+]+:)+\\s*$");
+            Pattern.compile("^(?:\\s*:[\\w-+]+:)+\\s*$");
 
     private final SlackProperties slackProperties;
     private final SlackClient slackClient;
@@ -29,10 +29,10 @@ public class SlackService {
     private final Instant startupTime;
 
     public SlackService(
-        final SlackProperties slackProperties,
-        final SlackClient slackClient,
-        final Translator translator,
-        final Clock clock
+            final SlackProperties slackProperties,
+            final SlackClient slackClient,
+            final Translator translator,
+            final Clock clock
     ) {
         this.slackProperties = slackProperties;
         this.slackClient = slackClient;
@@ -72,17 +72,18 @@ public class SlackService {
 
         final String text = messageEvent.getText();
         translator.translate(text)
-            .ifPresent(translatedText -> {
-                log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
+                .ifPresent(translatedText -> {
+                    log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
 
-                final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
-                final ChatMessage chatMessage =
-                    ChatMessage.builder()
-                        .channel(messageEvent.getChannel())
-                        .text(postingText)
-                        .build();
+                    final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
+                    final OutgoingMessage outgoingMessage =
+                            OutgoingMessage.builder()
+                                    .username(slackProperties.getUsername())
+                                    .channel(messageEvent.getChannel())
+                                    .text(postingText)
+                                    .build();
 
-                slackClient.postMessage(chatMessage);
-            });
+                    slackClient.postMessage(outgoingMessage);
+                });
     }
 }
