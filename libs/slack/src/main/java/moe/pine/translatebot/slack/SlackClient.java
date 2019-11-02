@@ -1,12 +1,5 @@
 package moe.pine.translatebot.slack;
 
-import com.github.seratch.jslack.Slack;
-import com.github.seratch.jslack.api.methods.MethodsClient;
-import com.github.seratch.jslack.api.methods.SlackApiException;
-import com.github.seratch.jslack.api.methods.request.chat.ChatDeleteRequest;
-import com.github.seratch.jslack.api.methods.request.chat.ChatPostMessageRequest;
-import com.github.seratch.jslack.api.methods.request.chat.ChatUpdateRequest;
-import com.github.seratch.jslack.api.methods.response.chat.ChatPostMessageResponse;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.retryutils.RetryTemplateFactory;
 import org.springframework.retry.support.RetryTemplate;
@@ -25,17 +18,8 @@ public class SlackClient {
         }
     }
 
-    private final RetryTemplate retryTemplate;
-    private final RetryTemplate unlimitedRetryTemplate;
     private final SlackRtmClient slackRtmClient;
-    private final MethodsClient methodsClient;
-
-    private final PostMessageRequestConverter postMessageRequestConverter =
-        new PostMessageRequestConverter();
-    private final PostMessageResponseConverter postMessageResponseConverter =
-        new PostMessageResponseConverter();
-    private final UpdateMessageRequestConverter updateMessageRequestConverter =
-        new UpdateMessageRequestConverter();
+    private final SlackWebClient slackWebClient;
 
     private final AtomicBoolean closed = new AtomicBoolean();
     private final StateManager stateManager = new StateManagerImpl();
@@ -53,15 +37,18 @@ public class SlackClient {
         final RetryTemplate retryTemplate,
         final RetryTemplate unlimitedRetryTemplate
     ) {
-        this.retryTemplate = Objects.requireNonNull(retryTemplate);
-        this.unlimitedRetryTemplate = Objects.requireNonNull(unlimitedRetryTemplate);
+        Objects.requireNonNull(retryTemplate);
+        Objects.requireNonNull(unlimitedRetryTemplate);
+
         this.slackRtmClient = new SlackRtmClient(
             token,
             stateManager,
             retryTemplate,
             unlimitedRetryTemplate);
-
-        methodsClient = Slack.getInstance().methods(token);
+        this.slackWebClient = new SlackWebClient(
+            token,
+            stateManager,
+            retryTemplate);
     }
 
     public void addEventListener(final Consumer<Event> listener) {
@@ -73,51 +60,15 @@ public class SlackClient {
     }
 
     public PostMessageResponse postMessage(final PostMessageRequest postMessageRequest) {
-        final ChatPostMessageRequest chatPostMessageRequest =
-            postMessageRequestConverter.convert(postMessageRequest);
-
-        final ChatPostMessageResponse chatPostMessageResponse =
-            retryTemplate.execute(ctx -> {
-                stateManager.throwIfAlreadyClosed();
-                try {
-                    return methodsClient.chatPostMessage(chatPostMessageRequest);
-                } catch (IOException | SlackApiException e) {
-                    throw new SlackClientException(e);
-                }
-            });
-
-        return postMessageResponseConverter.convert(chatPostMessageResponse);
+        return slackWebClient.postMessage(postMessageRequest);
     }
 
     public void updateMessage(final UpdateMessageRequest updateMessageRequest) {
-        final ChatUpdateRequest chatUpdateRequest =
-            updateMessageRequestConverter.convert(updateMessageRequest);
-
-        retryTemplate.execute(ctx -> {
-            stateManager.throwIfAlreadyClosed();
-            try {
-                return methodsClient.chatUpdate(chatUpdateRequest);
-            } catch (IOException | SlackApiException e) {
-                throw new SlackClientException(e);
-            }
-        });
+        slackWebClient.updateMessage(updateMessageRequest);
     }
 
     public void deleteMessage(final DeleteMessageRequest deleteMessageRequest) {
-        final ChatDeleteRequest chatDeleteRequest =
-            ChatDeleteRequest.builder()
-                .channel(deleteMessageRequest.getChannel())
-                .ts(deleteMessageRequest.getTs())
-                .build();
-
-        retryTemplate.execute(ctx -> {
-            stateManager.throwIfAlreadyClosed();
-            try {
-                return methodsClient.chatDelete(chatDeleteRequest);
-            } catch (IOException | SlackApiException e) {
-                throw new SlackClientException(e);
-            }
-        });
+        slackWebClient.deleteMessage(deleteMessageRequest);
     }
 
     public void close() throws IOException {

@@ -18,7 +18,6 @@ import java.util.function.Consumer;
 @Slf4j
 class SlackRtmClient {
     private final StateManager stateManager;
-    private final RetryTemplate retryTemplate;
     private final RetryTemplate unlimitedRetryTemplate;
     private final RTMClient rtmClient;
 
@@ -31,7 +30,6 @@ class SlackRtmClient {
         final RetryTemplate unlimitedRetryTemplate
     ) {
         this.stateManager = stateManager;
-        this.retryTemplate = retryTemplate;
         this.unlimitedRetryTemplate = unlimitedRetryTemplate;
 
         rtmClient = retryTemplate.execute(ctx -> {
