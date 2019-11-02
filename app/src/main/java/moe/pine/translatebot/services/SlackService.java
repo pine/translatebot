@@ -125,15 +125,16 @@ public class SlackService {
         if (translatedTextOpt.isEmpty()) {
             return;
         }
-        
+
         final String translatedText = translatedTextOpt.get();
+        final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
         log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
 
         final SentLog sentLog = sentLogOpt.get();
         final UpdateMessageRequest updateMessageRequest =
             UpdateMessageRequest.builder()
                 .channel(sentLog.getChannel())
-                .text(translatedText)
+                .text(postingText)
                 .ts(sentLog.getDestinationTs())
                 .build();
         slackClient.updateMessage(updateMessageRequest);
