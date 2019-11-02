@@ -26,7 +26,7 @@ public class MessageChangedEventHandler {
     private final SentLogRepository sentLogRepository;
 
     public void execute(final MessageEvent messageEvent) {
-        if (messageEvent.getEdited() == null) {
+        if (messageEvent.getMessage().getEdited() == null) {
             return;
         }
 
