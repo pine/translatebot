@@ -24,6 +24,9 @@ public class MessageEvent implements Event {
     private String threadTs;
     private String subtype;
     private Boolean hidden;
+    @JsonProperty("bot_id")
+    private String botId;
+    private String username;
     private MessageEvent message;
     @JsonProperty("previous_message")
     private MessageEvent previousMessage;

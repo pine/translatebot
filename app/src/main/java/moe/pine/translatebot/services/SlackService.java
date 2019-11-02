@@ -63,7 +63,9 @@ public class SlackService {
         if (ts < startupTime.getEpochSecond()) {
             return;
         }
-
+        if (StringUtils.isNotEmpty(messageEvent.getBotId())) {
+            return;
+        }
         final Set<String> channels = slackProperties.getChannels();
         if (!channels.contains(messageEvent.getChannel())) {
             return;
@@ -89,6 +91,7 @@ public class SlackService {
                 log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
 
                 final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
+                final boolean replyBroadcast = Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype());
                 final PostMessageRequest postMessageRequest =
                     PostMessageRequest.builder()
                         .username(slackProperties.getUsername())
@@ -96,7 +99,7 @@ public class SlackService {
                         .channel(messageEvent.getChannel())
                         .text(postingText)
                         .iconUrl(slackProperties.getIconUrl())
-                        .replyBroadcast(false)
+                        .replyBroadcast(replyBroadcast)
                         .build();
                 final PostMessageResponse postMessageResponse =
                     slackClient.postMessage(postMessageRequest);
