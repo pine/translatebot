@@ -46,8 +46,6 @@ public class SlackService {
     }
 
     private void onMessageEvent(final MessageEvent messageEvent) {
-        log.info("{}", messageEvent);
-
         final double ts = Double.parseDouble(messageEvent.getTs());
         if (ts < startupTime.getEpochSecond()) {
             return;
