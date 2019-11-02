@@ -1,12 +1,10 @@
 package moe.translatebot.log;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
-@Data
-@Builder
-public class SentLog {
+@Value
+public class SentLogId {
     private String channel;
     private String sourceTs;
-    private String destinationTs;
 }

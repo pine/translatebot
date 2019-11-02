@@ -6,8 +6,11 @@ import moe.pine.translatebot.slack.Event;
 import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.MessageEvent.Subtypes;
 import moe.pine.translatebot.slack.OutgoingMessage;
+import moe.pine.translatebot.slack.OutgoingMessageResult;
 import moe.pine.translatebot.slack.SlackClient;
 import moe.pine.translatebot.translation.Translator;
+import moe.translatebot.log.SentLog;
+import moe.translatebot.log.SentLogRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -27,17 +30,20 @@ public class SlackService {
     private final SlackProperties slackProperties;
     private final SlackClient slackClient;
     private final Translator translator;
+    private final SentLogRepository sentLogRepository;
     private final Instant startupTime;
 
     public SlackService(
         final SlackProperties slackProperties,
         final SlackClient slackClient,
         final Translator translator,
+        final SentLogRepository sentLogRepository,
         final Clock clock
     ) {
         this.slackProperties = slackProperties;
         this.slackClient = slackClient;
         this.translator = translator;
+        this.sentLogRepository = sentLogRepository;
 
         startupTime = clock.instant();
         slackClient.addEventListener(this::onEvent);
@@ -87,8 +93,15 @@ public class SlackService {
                         .iconUrl(slackProperties.getIconUrl())
                         .replyBroadcast(false)
                         .build();
+                final OutgoingMessageResult outgoingMessageResult =
+                    slackClient.postMessage(outgoingMessage);
 
-                slackClient.postMessage(outgoingMessage);
+                final SentLog sentLog = SentLog.builder()
+                    .channel(messageEvent.getChannel())
+                    .sourceTs(messageEvent.getTs())
+                    .destinationTs(outgoingMessageResult.getTs())
+                    .build();
+                sentLogRepository.add(sentLog);
             });
     }
 }
