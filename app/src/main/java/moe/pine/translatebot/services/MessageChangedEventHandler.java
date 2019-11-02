@@ -3,8 +3,6 @@ package moe.pine.translatebot.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.slack.MessageEvent;
-import moe.pine.translatebot.slack.MessageEvent.Subtypes;
-
 import moe.pine.translatebot.slack.SlackClient;
 import moe.pine.translatebot.slack.UpdateMessageRequest;
 import moe.pine.translatebot.translation.Translator;
@@ -24,6 +22,7 @@ public class MessageChangedEventHandler {
     private final SlackClient slackClient;
     private final Translator translator;
     private final SentLogRepository sentLogRepository;
+    private final TextPreprocessor textPreprocessor;
 
     public void execute(final MessageEvent messageEvent) {
         if (messageEvent.getMessage().getEdited() == null) {
@@ -40,15 +39,24 @@ public class MessageChangedEventHandler {
         }
 
         final String text = messageEvent.getMessage().getText();
-        final Optional<String> translatedTextOpt = translator.translate(text);
+        final Optional<TextPreprocessor.Result> processedTextsOpt = textPreprocessor.execute(text);
+        if (processedTextsOpt.isEmpty()) {
+            return;
+        }
+
+        final TextPreprocessor.Result processedTexts = processedTextsOpt.get();
+        final Optional<String> translatedTextOpt = translator.translate(processedTexts.getText());
         if (translatedTextOpt.isEmpty()) {
             return;
         }
 
         final String translatedText = translatedTextOpt.get();
-        final String postingText = String.format(POSTING_TEXT_FORMAT, translatedText);
-        log.info("Translated from \"{}\" to \"{}\"", text, translatedText);
+        log.info("Translated from \"{}\" to \"{}\"", processedTexts.getText(), translatedText);
 
+        final String postingText = String.format(POSTING_TEXT_FORMAT,
+            processedTexts.getPreText()
+                + translatedText
+                + processedTexts.getPostText());
         final SentLog sentLog = sentLogOpt.get();
         final UpdateMessageRequest updateMessageRequest =
             UpdateMessageRequest.builder()
