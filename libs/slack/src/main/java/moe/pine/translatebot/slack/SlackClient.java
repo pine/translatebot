@@ -34,6 +34,9 @@ public class SlackClient {
         new PostMessageRequestConverter();
     private final PostMessageResponseConverter postMessageResponseConverter =
         new PostMessageResponseConverter();
+    private final UpdateMessageRequestConverter updateMessageRequestConverter =
+        new UpdateMessageRequestConverter();
+
     private final List<Consumer<Event>> eventListeners = new CopyOnWriteArrayList<>();
     private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -130,11 +133,7 @@ public class SlackClient {
 
     public void updateMessage(final UpdateMessageRequest updateMessageRequest) {
         final ChatUpdateRequest chatUpdateRequest =
-            ChatUpdateRequest.builder()
-                .channel(updateMessageRequest.getChannel())
-                .text(updateMessageRequest.getText())
-                .ts(updateMessageRequest.getTs())
-                .build();
+            updateMessageRequestConverter.convert(updateMessageRequest);
 
         retryTemplate.execute(ctx -> {
             throwIfAlreadyClosed();
