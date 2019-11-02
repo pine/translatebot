@@ -6,11 +6,17 @@ import com.github.seratch.jslack.api.methods.SlackApiException;
 import com.github.seratch.jslack.api.methods.request.chat.ChatDeleteRequest;
 import com.github.seratch.jslack.api.methods.request.chat.ChatPostMessageRequest;
 import com.github.seratch.jslack.api.methods.request.chat.ChatUpdateRequest;
+import com.github.seratch.jslack.api.methods.request.users.UsersListRequest;
 import com.github.seratch.jslack.api.methods.response.chat.ChatPostMessageResponse;
+import com.github.seratch.jslack.api.methods.response.users.UsersListResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 class SlackWebClient {
     private final StateManager stateManager;
     private final MethodsClient methodsClient;
@@ -79,5 +85,27 @@ class SlackWebClient {
                 throw new SlackClientException(e);
             }
         });
+    }
+
+    List<User> getUsers() {
+        final UsersListRequest usersListRequest =
+            UsersListRequest.builder()
+                .includeLocale(false)
+                .build();
+
+        final UsersListResponse usersListResponse =
+            retryTemplate.execute(ctx -> {
+                stateManager.throwIfAlreadyClosed();
+                try {
+                    return methodsClient.usersList(usersListRequest);
+                } catch (IOException | SlackApiException e) {
+                    throw new SlackClientException(e);
+                }
+            });
+
+        return usersListResponse.getMembers()
+            .stream()
+            .map(v -> User.builder().id(v.getId()).name(v.getName()).build())
+            .collect(Collectors.toUnmodifiableList());
     }
 }

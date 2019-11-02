@@ -15,14 +15,14 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class SlackService {
+public class BotService {
     private final SlackProperties slackProperties;
     private final MessageChangedEventHandler messageChangedEventHandler;
     private final MessageDeletedEventHandler messageDeletedEventHandler;
     private final MessageSentEventHandler messageSentEventHandler;
     private final Instant startupTime;
 
-    public SlackService(
+    public BotService(
         final SlackProperties slackProperties,
         final SlackClient slackClient,
         final MessageChangedEventHandler messageChangedEventHandler,

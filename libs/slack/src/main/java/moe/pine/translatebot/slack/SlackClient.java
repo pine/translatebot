@@ -5,6 +5,7 @@ import moe.pine.translatebot.retryutils.RetryTemplateFactory;
 import org.springframework.retry.support.RetryTemplate;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -69,6 +70,10 @@ public class SlackClient {
 
     public void deleteMessage(final DeleteMessageRequest deleteMessageRequest) {
         slackWebClient.deleteMessage(deleteMessageRequest);
+    }
+
+    public List<User> getUsers() {
+        return slackWebClient.getUsers();
     }
 
     public void close() throws IOException {
