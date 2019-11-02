@@ -3,6 +3,7 @@ package moe.pine.translatebot.slack;
 import com.github.seratch.jslack.Slack;
 import com.github.seratch.jslack.api.methods.MethodsClient;
 import com.github.seratch.jslack.api.methods.SlackApiException;
+import com.github.seratch.jslack.api.methods.request.chat.ChatDeleteRequest;
 import com.github.seratch.jslack.api.methods.request.chat.ChatPostMessageRequest;
 import com.github.seratch.jslack.api.methods.request.chat.ChatUpdateRequest;
 import com.github.seratch.jslack.api.methods.response.chat.ChatPostMessageResponse;
@@ -139,6 +140,23 @@ public class SlackClient {
             throwIfAlreadyClosed();
             try {
                 return methodsClient.chatUpdate(chatUpdateRequest);
+            } catch (IOException | SlackApiException e) {
+                throw new SlackClientException(e);
+            }
+        });
+    }
+
+    public void deleteMessage(final DeleteMessageRequest deleteMessageRequest) {
+        final ChatDeleteRequest chatDeleteRequest =
+            ChatDeleteRequest.builder()
+                .channel(deleteMessageRequest.getChannel())
+                .ts(deleteMessageRequest.getTs())
+                .build();
+
+        retryTemplate.execute(ctx -> {
+            throwIfAlreadyClosed();
+            try {
+                return methodsClient.chatDelete(chatDeleteRequest);
             } catch (IOException | SlackApiException e) {
                 throw new SlackClientException(e);
             }

@@ -12,7 +12,14 @@ public class MessageEvent implements Event {
 
     public static abstract class Subtypes {
         public static final String MESSAGE_CHANGED = "message_changed";
+        public static final String MESSAGE_DELETED = "message_deleted";
         public static final String THREAD_BROADCAST = "thread_broadcast";
+    }
+
+    @Data
+    public static class Edited {
+        private String user;
+        private String ts;
     }
 
     private String type;
@@ -22,6 +29,7 @@ public class MessageEvent implements Event {
     private String ts;
     @JsonProperty("thread_ts")
     private String threadTs;
+    private Edited edited;
     private String subtype;
     private Boolean hidden;
     @JsonProperty("bot_id")
