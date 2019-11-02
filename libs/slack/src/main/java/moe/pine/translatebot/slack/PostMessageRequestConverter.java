@@ -2,9 +2,9 @@ package moe.pine.translatebot.slack;
 
 import com.github.seratch.jslack.api.methods.request.chat.ChatPostMessageRequest;
 
-class ChatPostMessageRequestConverter {
-    ChatPostMessageRequest fromMessage(
-            final OutgoingMessage message
+class PostMessageRequestConverter {
+    ChatPostMessageRequest convert(
+            final PostMessageRequest message
     ) {
         return ChatPostMessageRequest.builder()
                 .username(message.getUsername())

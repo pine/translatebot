@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class OutgoingMessageResult {
+public class PostMessageResponse {
     private String channel;
     private String ts;
 }

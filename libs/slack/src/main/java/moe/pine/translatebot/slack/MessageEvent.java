@@ -11,6 +11,7 @@ public class MessageEvent implements Event {
     public static final String TYPE = "message";
 
     public static abstract class Subtypes {
+        public static final String MESSAGE_CHANGED = "message_changed";
         public static final String THREAD_BROADCAST = "thread_broadcast";
     }
 
@@ -24,4 +25,6 @@ public class MessageEvent implements Event {
     private String subtype;
     private Boolean hidden;
     private MessageEvent message;
+    @JsonProperty("previous_message")
+    private MessageEvent previousMessage;
 }

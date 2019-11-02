@@ -2,11 +2,11 @@ package moe.pine.translatebot.slack;
 
 import com.github.seratch.jslack.api.methods.response.chat.ChatPostMessageResponse;
 
-class ChatPostMessageResponseConverter {
-    OutgoingMessageResult toResult(
+class PostMessageResponseConverter {
+    PostMessageResponse convert(
             final ChatPostMessageResponse response
     ) {
-        return OutgoingMessageResult.builder()
+        return PostMessageResponse.builder()
                 .channel(response.getChannel())
                 .ts(response.getTs())
                 .build();

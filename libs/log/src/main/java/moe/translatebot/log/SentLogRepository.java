@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
+import org.springframework.util.StringUtils;
 
 import java.io.UncheckedIOException;
 import java.time.Duration;
-import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 public class SentLogRepository {
@@ -50,15 +51,19 @@ public class SentLogRepository {
         redisTemplate.opsForValue().set(key, value, retentionPeriod).block(BLOCK_TIMEOUT);
     }
 
-    public SentLog get(final SentLogId sentLogId) {
+    public Optional<SentLog> get(final SentLogId sentLogId) {
         final String key = sentLogKeyBuilder.buildKey(sentLogId);
         final String value = redisTemplate.opsForValue().get(key).block(BLOCK_TIMEOUT);
-        Objects.requireNonNull(value);
+        if (StringUtils.isEmpty(value)) {
+            return Optional.empty();
+        }
 
+        final SentLog sentLog;
         try {
-            return OBJECT_MAPPER.readValue(value, SentLog.class);
+            sentLog = OBJECT_MAPPER.readValue(value, SentLog.class);
         } catch (JsonProcessingException e) {
             throw new UncheckedIOException(e);
         }
+        return Optional.of(sentLog);
     }
 }

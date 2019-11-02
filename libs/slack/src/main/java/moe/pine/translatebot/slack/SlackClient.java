@@ -4,6 +4,7 @@ import com.github.seratch.jslack.Slack;
 import com.github.seratch.jslack.api.methods.MethodsClient;
 import com.github.seratch.jslack.api.methods.SlackApiException;
 import com.github.seratch.jslack.api.methods.request.chat.ChatPostMessageRequest;
+import com.github.seratch.jslack.api.methods.request.chat.ChatUpdateRequest;
 import com.github.seratch.jslack.api.methods.response.chat.ChatPostMessageResponse;
 import com.github.seratch.jslack.api.rtm.RTMClient;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +29,10 @@ public class SlackClient {
     private final RTMClient rtmClient;
     private final MethodsClient methodsClient;
 
-    private final ChatPostMessageRequestConverter chatPostMessageRequestConverter =
-        new ChatPostMessageRequestConverter();
-    private final ChatPostMessageResponseConverter chatPostMessageResponseConverter =
-        new ChatPostMessageResponseConverter();
+    private final PostMessageRequestConverter postMessageRequestConverter =
+        new PostMessageRequestConverter();
+    private final PostMessageResponseConverter postMessageResponseConverter =
+        new PostMessageResponseConverter();
     private final List<Consumer<Event>> eventListeners = new CopyOnWriteArrayList<>();
     private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -109,21 +110,39 @@ public class SlackClient {
         eventListeners.remove(listener);
     }
 
-    public OutgoingMessageResult postMessage(final OutgoingMessage outgoingMessage) {
-        final ChatPostMessageRequest request =
-            chatPostMessageRequestConverter.fromMessage(outgoingMessage);
+    public PostMessageResponse postMessage(final PostMessageRequest postMessageRequest) {
+        final ChatPostMessageRequest chatPostMessageRequest =
+            postMessageRequestConverter.convert(postMessageRequest);
 
-        final ChatPostMessageResponse response =
+        final ChatPostMessageResponse chatPostMessageResponse =
             retryTemplate.execute(ctx -> {
                 throwIfAlreadyClosed();
                 try {
-                    return methodsClient.chatPostMessage(request);
+                    return methodsClient.chatPostMessage(chatPostMessageRequest);
                 } catch (IOException | SlackApiException e) {
                     throw new SlackClientException(e);
                 }
             });
 
-        return chatPostMessageResponseConverter.toResult(response);
+        return postMessageResponseConverter.convert(chatPostMessageResponse);
+    }
+
+    public void updateMessage(final UpdateMessageRequest updateMessageRequest) {
+        final ChatUpdateRequest chatUpdateRequest =
+            ChatUpdateRequest.builder()
+                .channel(updateMessageRequest.getChannel())
+                .text(updateMessageRequest.getText())
+                .ts(updateMessageRequest.getTs())
+                .build();
+
+        retryTemplate.execute(ctx -> {
+            throwIfAlreadyClosed();
+            try {
+                return methodsClient.chatUpdate(chatUpdateRequest);
+            } catch (IOException | SlackApiException e) {
+                throw new SlackClientException(e);
+            }
+        });
     }
 
     public void close() throws IOException {
