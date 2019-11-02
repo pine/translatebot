@@ -19,11 +19,7 @@ public class MessageDeletedEventHandler {
     private final SlackClient slackClient;
     private final SentLogRepository sentLogRepository;
 
-    public void execute(final MessageEvent messageEvent) {
-        if (messageEvent.getPreviousMessage() == null) {
-            return;
-        }
-
+    void execute(final MessageEvent messageEvent) {
         final SentLogId sentLogId =
             new SentLogId(
                 messageEvent.getChannel(),
