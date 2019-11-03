@@ -103,6 +103,8 @@ class SlackWebClient {
                 }
             });
 
+        log.info("{}", usersListResponse.getMembers());
+
         return usersListResponse.getMembers()
             .stream()
             .map(v -> User.builder()
