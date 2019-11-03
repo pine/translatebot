@@ -103,12 +103,11 @@ class SlackWebClient {
                 }
             });
 
-        log.info("{}", usersListResponse.getMembers());
-
         return usersListResponse.getMembers()
             .stream()
             .map(v -> User.builder()
                 .id(v.getId())
+                .realName(v.getProfile().getRealName())
                 .displayName(v.getProfile().getDisplayName())
                 .build())
             .collect(Collectors.toUnmodifiableList());
