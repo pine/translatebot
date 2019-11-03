@@ -22,7 +22,7 @@ public class TextTranslationUtils {
             return Optional.empty();
         }
 
-        return Optional.of(text);
+        return Optional.of(translatedTextOpt.get());
 
         /*
         final Optional<TextSplitter.Result> processedTextsOpt = textSplitter.split(text);
