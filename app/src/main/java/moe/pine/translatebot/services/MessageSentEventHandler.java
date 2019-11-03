@@ -7,7 +7,6 @@ import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.PostMessageRequest;
 import moe.pine.translatebot.slack.PostMessageResponse;
 import moe.pine.translatebot.slack.SlackClient;
-import moe.pine.translatebot.translation.Translator;
 import moe.translatebot.log.SentLog;
 import moe.translatebot.log.SentLogRepository;
 import org.springframework.stereotype.Component;
@@ -20,15 +19,13 @@ import java.util.regex.Pattern;
 @Component
 @RequiredArgsConstructor
 public class MessageSentEventHandler {
-    private static final String POSTING_TEXT_FORMAT = ":jp: %s";
     private static final Pattern EMOTICON_ONLY_TEXT_PATTERN =
         Pattern.compile("^(?:\\s*:[\\w-+]+:)+\\s*$");
 
     private final SlackProperties slackProperties;
     private final SlackClient slackClient;
-    private final Translator translator;
     private final SentLogRepository sentLogRepository;
-    private final TextPreprocessor textPreprocessor;
+    private final TextTranslationUtils textTranslationUtils;
 
     public void execute(final MessageEvent messageEvent) {
         final Matcher matcher = EMOTICON_ONLY_TEXT_PATTERN.matcher(messageEvent.getText());
@@ -37,25 +34,12 @@ public class MessageSentEventHandler {
         }
 
         final String text = messageEvent.getText();
-        final Optional<TextPreprocessor.Result> processedTextsOpt = textPreprocessor.execute(text);
-        if (processedTextsOpt.isEmpty()) {
+        final Optional<String> postingTextOpt = textTranslationUtils.translate(text);
+        if (postingTextOpt.isEmpty()) {
             return;
         }
 
-        final TextPreprocessor.Result processedTexts = processedTextsOpt.get();
-        final Optional<String> translatedTextOpt = translator.translate(processedTexts.getText());
-        if (translatedTextOpt.isEmpty()) {
-            return;
-        }
-
-        final String translatedText = translatedTextOpt.get();
-        log.info("Translated from \"{}\" to \"{}\"", processedTexts.getText(), translatedText);
-
-        final String postingText = String.format(POSTING_TEXT_FORMAT,
-            processedTexts.getPreText()
-                + translatedText
-                + processedTexts.getPostText());
-
+        final String postingText = postingTextOpt.get();
         final boolean replyBroadcast =
             MessageEvent.Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype());
         final PostMessageRequest postMessageRequest =

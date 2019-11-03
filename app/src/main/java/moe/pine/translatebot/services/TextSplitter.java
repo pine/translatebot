@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-public class TextPreprocessor {
+public class TextSplitter {
     private static final Pattern PRE_TEXT_PATTERN =
         Pattern.compile("^(?<preText>(?:\\s|(?:<![a-z]+>)|(?:<@[A-Z0-9]+>)|(?::[\\w-+]+:))*)(?<behindText>.*)$");
     private static final Pattern POST_TEXT_PATTERN =
@@ -25,7 +25,7 @@ public class TextPreprocessor {
         private String postText;
     }
 
-    public Optional<Result> execute(final String text) {
+    public Optional<Result> split(final String text) {
         final Matcher preTextMatcher = PRE_TEXT_PATTERN.matcher(text);
         if (!preTextMatcher.matches()) {
             return Optional.empty();
