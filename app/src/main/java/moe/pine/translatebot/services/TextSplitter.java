@@ -12,10 +12,11 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class TextSplitter {
+    private static final String SKIP_PATTERN = "(?:\\s|(?:<![a-z]+>)|(?:<@[A-Z0-9]+>)|(?::[\\w-+]+:))*";
     private static final Pattern PRE_TEXT_PATTERN =
-        Pattern.compile("^(?<preText>(?:\\s|(?:<![a-z]+>)|(?:<@[A-Z0-9]+>)|(?::[\\w-+]+:))*)(?<behindText>.*)$");
+        Pattern.compile("\\A(?<preText>" + SKIP_PATTERN + ")(?<behindText>.*)\\z", Pattern.DOTALL);
     private static final Pattern POST_TEXT_PATTERN =
-        Pattern.compile("^(?<centerText>.*?)(?<postText>(?:\\s|(?:<![a-z]+>)|(?:<@[A-Z0-9]+>)|(?::[\\w-+]+:))*)$");
+        Pattern.compile("\\A(?<centerText>.*?)(?<postText>" + SKIP_PATTERN + ")\\z", Pattern.DOTALL);
 
     @Value
     @Builder
