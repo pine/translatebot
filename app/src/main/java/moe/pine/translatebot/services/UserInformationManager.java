@@ -6,6 +6,8 @@ import moe.pine.translatebot.slack.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -21,5 +23,19 @@ public class UserInformationManager {
 
         users = new AtomicReference<>(slackClient.getUsers());
         log.info("Users information received : {}", users);
+    }
+
+    public Optional<User> findByUserId(final String userId) {
+        Objects.requireNonNull(userId);
+
+        final List<User> snapshotUsers = users.get();
+        return snapshotUsers.stream()
+            .filter(user -> Objects.equals(user.getId(), userId))
+            .findFirst();
+    }
+
+    public void refresh() {
+        users.set(slackClient.getUsers());
+        log.info("Users information updated : {}", users);
     }
 }

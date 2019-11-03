@@ -15,27 +15,28 @@ public class TextTranslationUtils {
 
     private final Translator translator;
     private final TextSplitter textSplitter;
+    private final TextVariablesProcessor textVariablesProcessor;
 
     public Optional<String> translate(final String text) {
-        final Optional<TextSplitter.Result> processedTextsOpt = textSplitter.split(text);
-        if (processedTextsOpt.isEmpty()) {
+        final Optional<TextSplitter.Result> splitTextsOpt = textSplitter.split(text);
+        if (splitTextsOpt.isEmpty()) {
             return Optional.empty();
         }
 
-        final TextSplitter.Result processedTexts = processedTextsOpt.get();
-        final Optional<String> translatedTextOpt = translator.translate(processedTexts.getText());
+        final TextSplitter.Result splitTexts = splitTextsOpt.get();
+        final String replacedText = textVariablesProcessor.execute(splitTexts.getText());
+        final Optional<String> translatedTextOpt = translator.translate(replacedText);
         if (translatedTextOpt.isEmpty()) {
             return Optional.empty();
         }
 
         final String translatedText = translatedTextOpt.get();
-        log.info("Translated from \"{}\" to \"{}\"", processedTexts.getText(), translatedText);
+        log.info("Translated from \"{}\" to \"{}\"", splitTexts.getText(), translatedText);
 
-        final String joinedText = String.format(
-            POSTING_TEXT_FORMAT,
-            processedTexts.getPreText()
-                + translatedText
-                + processedTexts.getPostText());
+        final String joinedText =
+            String.format(
+                POSTING_TEXT_FORMAT,
+                splitTexts.getPreText() + translatedText + splitTexts.getPostText());
 
         return Optional.of(joinedText);
     }
