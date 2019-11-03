@@ -7,8 +7,8 @@ import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.PostMessageRequest;
 import moe.pine.translatebot.slack.PostMessageResponse;
 import moe.pine.translatebot.slack.SlackClient;
-import moe.translatebot.log.SentLog;
-import moe.translatebot.log.SentLogRepository;
+import moe.pine.translatebot.log.SentLog;
+import moe.pine.translatebot.log.SentLogRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

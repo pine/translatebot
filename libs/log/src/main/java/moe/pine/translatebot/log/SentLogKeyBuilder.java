@@ -1,4 +1,4 @@
-package moe.translatebot.log;
+package moe.pine.translatebot.log;
 
 import java.util.Objects;
 

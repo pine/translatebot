@@ -1,4 +1,4 @@
-package moe.translatebot.log;
+package moe.pine.translatebot.log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;

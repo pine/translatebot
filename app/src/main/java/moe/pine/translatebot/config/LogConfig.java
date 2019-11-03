@@ -1,7 +1,7 @@
 package moe.pine.translatebot.config;
 
 import moe.pine.translatebot.properties.LogProperties;
-import moe.translatebot.log.SentLogRepository;
+import moe.pine.translatebot.log.SentLogRepository;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

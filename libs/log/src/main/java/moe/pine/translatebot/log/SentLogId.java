@@ -1,6 +1,5 @@
-package moe.translatebot.log;
+package moe.pine.translatebot.log;
 
-import lombok.Builder;
 import lombok.Value;
 
 @Value
