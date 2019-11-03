@@ -17,6 +17,14 @@ public class TextTranslationUtils {
     private final TextSplitter textSplitter;
 
     public Optional<String> translate(final String text) {
+        final Optional<String> translatedTextOpt = translator.translate(text);
+        if (translatedTextOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(text);
+
+        /*
         final Optional<TextSplitter.Result> processedTextsOpt = textSplitter.split(text);
         if (processedTextsOpt.isEmpty()) {
             return Optional.empty();
@@ -38,5 +46,7 @@ public class TextTranslationUtils {
                 + processedTexts.getPostText());
 
         return Optional.of(joinedText);
+
+         */
     }
 }
