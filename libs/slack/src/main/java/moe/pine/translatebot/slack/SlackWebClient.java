@@ -105,7 +105,10 @@ class SlackWebClient {
 
         return usersListResponse.getMembers()
             .stream()
-            .map(v -> User.builder().id(v.getId()).name(v.getName()).build())
+            .map(v -> User.builder()
+                .id(v.getId())
+                .displayName(v.getProfile().getDisplayName())
+                .build())
             .collect(Collectors.toUnmodifiableList());
     }
 }

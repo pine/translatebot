@@ -13,13 +13,8 @@ class Events {
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     static Optional<Event> parse(String content) {
-        final HelloEvent helloEvent;
-        try {
-            helloEvent = OBJECT_MAPPER.readValue(content, HelloEvent.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        if (helloEvent == null || StringUtils.isEmpty(helloEvent.getType())) {
+        final HelloEvent helloEvent = readJson(content, HelloEvent.class);
+        if (StringUtils.isEmpty(helloEvent.getType())) {
             return Optional.empty();
         }
 
@@ -27,15 +22,19 @@ class Events {
             case HelloEvent.TYPE:
                 return Optional.of(helloEvent);
             case MessageEvent.TYPE:
-                final MessageEvent messageEvent;
-                try {
-                    messageEvent = OBJECT_MAPPER.readValue(content, MessageEvent.class);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-                return Optional.of(messageEvent);
+                return Optional.of(readJson(content, MessageEvent.class));
+            case UserChangeEvent.TYPE:
+                return Optional.of(readJson(content, UserChangeEvent.class));
             default:
                 return Optional.empty();
+        }
+    }
+
+    private static <T> T readJson(final String content, Class<T> clazz) {
+        try {
+            return OBJECT_MAPPER.readValue(content, clazz);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }
