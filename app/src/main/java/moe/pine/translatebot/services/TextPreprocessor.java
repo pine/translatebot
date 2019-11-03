@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
 @Component
 public class TextPreprocessor {
     private static final Pattern PRE_TEXT_PATTERN =
-        Pattern.compile("^(?<preText>(?:\\s+|(?:<![a-z]+>)|(?:<@[A-Z0-9]+>)|(?::[\\w-+]+:))*)(?<behindText>.*)$");
+        Pattern.compile("^(?<preText>(?:\\s|(?:<![a-z]+>)|(?:<@[A-Z0-9]+>)|(?::[\\w-+]+:))*)(?<behindText>.*)$");
     private static final Pattern POST_TEXT_PATTERN =
-        Pattern.compile("^(?<centerText>.*?)(?<postText>(?:\\s+|(?:<![a-z]+>)|(?:<@[A-Z0-9]+>)|(?::[\\w-+]+:))*)$");
+        Pattern.compile("^(?<centerText>.*?)(?<postText>(?:\\s|(?:<![a-z]+>)|(?:<@[A-Z0-9]+>)|(?::[\\w-+]+:))*)$");
 
     @Value
     @Builder
