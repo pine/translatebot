@@ -2,6 +2,7 @@ package moe.pine.translatebot.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
 import moe.pine.translatebot.translation.Translator;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class TextTranslationUtils {
 
     private final Translator translator;
     private final TextSplitter textSplitter;
-    private final TextVariablesProcessor textVariablesProcessor;
+    private final CompositeVariableProcessor compositeVariableProcessor;
 
     public Optional<String> translate(final String text) {
         final Optional<TextSplitter.Result> splitTextsOpt = textSplitter.split(text);
@@ -24,7 +25,7 @@ public class TextTranslationUtils {
         }
 
         final TextSplitter.Result splitTexts = splitTextsOpt.get();
-        final String replacedText = textVariablesProcessor.execute(splitTexts.getText());
+        final String replacedText = compositeVariableProcessor.execute(splitTexts.getText());
         final Optional<String> translatedTextOpt = translator.translate(replacedText);
         if (translatedTextOpt.isEmpty()) {
             return Optional.empty();

@@ -1,7 +1,7 @@
-package moe.pine.translatebot.services;
+package moe.pine.translatebot.services.text_variable;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import moe.pine.translatebot.services.UserInformationManager;
 import moe.pine.translatebot.slack.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -10,25 +10,15 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
-public class TextVariablesProcessor {
+public class UserVariableProcessor implements VariableProcessor {
     private static final Pattern USER_PATTERN = Pattern.compile("<@(?<userId>[A-Z0-9]+)>");
-    private static final Pattern COMMAND_PATTERN = Pattern.compile("(?:<!(?<commandName>[a-z]+)>)");
 
     private final UserInformationManager userInformationManager;
 
+    @Override
     public String execute(final String text) {
-        if (StringUtils.isEmpty(text)) {
-            return StringUtils.EMPTY;
-        }
-
-        final String userReplacedText = replaceUser(text);
-        return replaceCommand(userReplacedText);
-    }
-
-    String replaceUser(final String text) {
         final StringBuilder sb = new StringBuilder();
 
         int pos = 0;
@@ -64,27 +54,4 @@ public class TextVariablesProcessor {
 
         return sb.toString();
     }
-
-    String replaceCommand(final String text) {
-        final StringBuilder sb = new StringBuilder();
-
-        int pos = 0;
-        while (pos < text.length()) {
-            final Matcher matcher = COMMAND_PATTERN.matcher(text);
-            if (!matcher.find(pos)) {
-                sb.append(text.substring(pos));
-                break;
-            }
-
-            final String commandName = matcher.group("commandName");
-            sb.append(text, pos, matcher.start());
-            sb.append('@');
-            sb.append(commandName);
-
-            pos = matcher.end();
-        }
-
-        return sb.toString();
-    }
-
 }
