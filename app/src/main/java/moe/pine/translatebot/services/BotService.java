@@ -9,34 +9,45 @@ import moe.pine.translatebot.slack.SlackClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Set;
+import java.util.function.Consumer;
 
 @Slf4j
 @Service
 public class BotService {
     private final SlackProperties slackProperties;
+    private final SlackClient slackClient;
     private final MessageChangedEventHandler messageChangedEventHandler;
     private final MessageDeletedEventHandler messageDeletedEventHandler;
     private final MessageSentEventHandler messageSentEventHandler;
     private final Instant startupTime;
 
+    private final Consumer<Event> eventConsumer = this::onEvent;
+
     public BotService(
-        final SlackProperties slackProperties,
-        final SlackClient slackClient,
-        final MessageChangedEventHandler messageChangedEventHandler,
-        final MessageDeletedEventHandler messageDeletedEventHandler,
-        final MessageSentEventHandler messageSentEventHandler,
-        final Clock clock
+            final SlackProperties slackProperties,
+            final SlackClient slackClient,
+            final MessageChangedEventHandler messageChangedEventHandler,
+            final MessageDeletedEventHandler messageDeletedEventHandler,
+            final MessageSentEventHandler messageSentEventHandler,
+            final Clock clock
     ) {
         this.slackProperties = slackProperties;
+        this.slackClient = slackClient;
         this.messageChangedEventHandler = messageChangedEventHandler;
         this.messageDeletedEventHandler = messageDeletedEventHandler;
         this.messageSentEventHandler = messageSentEventHandler;
 
         startupTime = clock.instant();
-        slackClient.addEventListener(this::onEvent);
+        slackClient.addEventListener(eventConsumer);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        slackClient.removeEventListener(eventConsumer);
     }
 
     private void onEvent(final Event event) {
@@ -59,7 +70,7 @@ public class BotService {
         }
 
         if (StringUtils.isEmpty(messageEvent.getSubtype()) ||
-            Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype())) {
+                Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype())) {
             messageSentEventHandler.execute(messageEvent);
         } else if (Subtypes.MESSAGE_CHANGED.equals(messageEvent.getSubtype())) {
             messageChangedEventHandler.execute(messageEvent);
