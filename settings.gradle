@@ -11,5 +11,11 @@ project(':lib-retry-utils').projectDir = new File(settingsDir, '/libs/retry-util
 include ':lib-slack'
 project(':lib-slack').projectDir = new File(settingsDir, '/libs/slack')
 
-include ':lib-gcp'
-project(':lib-gcp').projectDir = new File(settingsDir, '/libs/gcp')
+
+// Translators
+//~~~~~~~~~~~~~~~
+include ':lib-gcp-translator'
+project(':lib-gcp-translator').projectDir = new File(settingsDir, '/libs/gcp-translator')
+
+include ':lib-microsoft-translator'
+project(':lib-microsoft-translator').projectDir = new File(settingsDir, '/libs/microsoft-translator')

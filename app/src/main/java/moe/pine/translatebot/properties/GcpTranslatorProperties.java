@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @ConfigurationProperties("gcp")
-public class GcpProperties {
+public class GcpTranslatorProperties {
     private @NotBlank String credentials;
     private @NotBlank String projectId;
     private @NotBlank String location;

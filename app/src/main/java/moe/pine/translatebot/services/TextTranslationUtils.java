@@ -3,7 +3,7 @@ package moe.pine.translatebot.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
-import moe.pine.translatebot.gcp.GcpTranslator;
+import moe.pine.translatebot.gcp.translator.GcpTranslator;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

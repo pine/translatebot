@@ -7,7 +7,10 @@ configurations {
 dependencies {
     implementation project(':lib-log')
     implementation project(':lib-slack')
-    implementation project(':lib-gcp')
+
+    // Sub-projects : Translators
+    implementation project(':lib-gcp-translator')
+    implementation project(':lib-microsoft-translator')
 
     // Spring Framework
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'

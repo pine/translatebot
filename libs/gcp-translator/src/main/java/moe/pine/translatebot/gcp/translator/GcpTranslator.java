@@ -1,4 +1,4 @@
-package moe.pine.translatebot.gcp;
+package moe.pine.translatebot.gcp.translator;
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
