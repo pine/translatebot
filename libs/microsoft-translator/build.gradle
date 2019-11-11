@@ -1,0 +1,9 @@
+configurations {
+    implementation.exclude module: 'spring-boot-starter-tomcat'
+}
+
+dependencies {
+    // Spring Framework
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+}
