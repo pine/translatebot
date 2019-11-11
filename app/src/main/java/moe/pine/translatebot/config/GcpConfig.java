@@ -1,8 +1,8 @@
 package moe.pine.translatebot.config;
 
 import lombok.extern.slf4j.Slf4j;
-import moe.pine.translatebot.properties.TranslationProperties;
-import moe.pine.translatebot.translation.Translator;
+import moe.pine.translatebot.properties.GcpProperties;
+import moe.pine.translatebot.gcp.GcpTranslator;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,21 +13,21 @@ import java.io.IOException;
 
 @Slf4j
 @Configuration
-@EnableConfigurationProperties(TranslationProperties.class)
-public class TranslationConfig {
+@EnableConfigurationProperties(GcpProperties.class)
+public class GcpConfig {
     @Bean
-    public Translator translator(
-        final TranslationProperties translationProperties,
+    public GcpTranslator gcpTranslator(
+        final GcpProperties gcpProperties,
         final ResourceLoader resourceLoader
     ) throws IOException {
-        final String location = translationProperties.getCredentials();
+        final String location = gcpProperties.getCredentials();
         log.info("Loading GCP credentials file '{}'", location);
 
         final Resource resource = resourceLoader.getResource(location);
-        return new Translator(
+        return new GcpTranslator(
             resource.getInputStream(),
-            translationProperties.getProjectId(),
-            translationProperties.getLocation()
+            gcpProperties.getProjectId(),
+            gcpProperties.getLocation()
         );
     }
 }

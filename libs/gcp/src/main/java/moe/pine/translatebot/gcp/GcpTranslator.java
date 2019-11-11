@@ -1,4 +1,4 @@
-package moe.pine.translatebot.translation;
+package moe.pine.translatebot.gcp;
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
@@ -22,12 +22,12 @@ import java.util.Locale;
 import java.util.Optional;
 
 @Slf4j
-public class Translator {
+public class GcpTranslator {
     private final TranslationServiceClient translationServiceClient;
     private final LocationName locationName;
     private final RetryTemplate retryTemplate;
 
-    public Translator(
+    public GcpTranslator(
         final InputStream credentialsStream,
         final String projectId,
         final String location
@@ -38,7 +38,7 @@ public class Translator {
             RetryTemplateFactory.create(5, 500, 2.0, ApiException.class));
     }
 
-    Translator(
+    GcpTranslator(
         final InputStream credentialsStream,
         final String projectId,
         final String location,

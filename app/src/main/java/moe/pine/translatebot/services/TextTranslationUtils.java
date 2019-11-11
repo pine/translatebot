@@ -3,7 +3,7 @@ package moe.pine.translatebot.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
-import moe.pine.translatebot.translation.Translator;
+import moe.pine.translatebot.gcp.GcpTranslator;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,7 +14,7 @@ import java.util.Optional;
 public class TextTranslationUtils {
     private static final String POSTING_TEXT_FORMAT = ":jp: %s";
 
-    private final Translator translator;
+    private final GcpTranslator gcpTranslator;
     private final TextSplitter textSplitter;
     private final CompositeVariableProcessor compositeVariableProcessor;
 
@@ -26,7 +26,7 @@ public class TextTranslationUtils {
 
         final TextSplitter.Result splitTexts = splitTextsOpt.get();
         final String replacedText = compositeVariableProcessor.execute(splitTexts.getText());
-        final Optional<String> translatedTextOpt = translator.translate(replacedText);
+        final Optional<String> translatedTextOpt = gcpTranslator.translate(replacedText);
         if (translatedTextOpt.isEmpty()) {
             return Optional.empty();
         }
