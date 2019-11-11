@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@ConfigurationProperties("translation")
+@ConfigurationProperties("gcp")
 public class GcpProperties {
     private @NotBlank String credentials;
     private @NotBlank String projectId;
