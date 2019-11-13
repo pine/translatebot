@@ -1,4 +1,4 @@
-package moe.pine.translatebot.retryutils;
+package moe.pine.translatebot.retry.support;
 
 import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;

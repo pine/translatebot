@@ -11,7 +11,7 @@ import com.google.cloud.translate.v3beta1.Translation;
 import com.google.cloud.translate.v3beta1.TranslationServiceClient;
 import com.google.cloud.translate.v3beta1.TranslationServiceSettings;
 import lombok.extern.slf4j.Slf4j;
-import moe.pine.translatebot.retryutils.RetryTemplateFactory;
+import moe.pine.translatebot.retry.support.RetryTemplateFactory;
 import moe.pine.translatebot.translator.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.support.RetryTemplate;

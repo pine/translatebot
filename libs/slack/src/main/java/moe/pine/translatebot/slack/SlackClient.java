@@ -1,7 +1,7 @@
 package moe.pine.translatebot.slack;
 
 import lombok.extern.slf4j.Slf4j;
-import moe.pine.translatebot.retryutils.RetryTemplateFactory;
+import moe.pine.translatebot.retry.support.RetryTemplateFactory;
 import org.springframework.retry.support.RetryTemplate;
 
 import java.io.IOException;

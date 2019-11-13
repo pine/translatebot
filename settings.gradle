@@ -5,8 +5,8 @@ include ':app'
 include ':lib-log'
 project(':lib-log').projectDir = new File(settingsDir, '/libs/log')
 
-include ':lib-retry-utils'
-project(':lib-retry-utils').projectDir = new File(settingsDir, '/libs/retry-utils')
+include ':lib-retry-support'
+project(':lib-retry-support').projectDir = new File(settingsDir, '/libs/retry-support')
 
 include ':lib-slack'
 project(':lib-slack').projectDir = new File(settingsDir, '/libs/slack')
