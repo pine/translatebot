@@ -1,6 +1,7 @@
 dependencies {
     // Sub-projects
     implementation project(':lib-retry-utils')
+    implementation project(':lib-translator')
 
     // Spring Framework
     implementation 'org.springframework.retry:spring-retry'

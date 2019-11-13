@@ -12,6 +12,7 @@ import com.google.cloud.translate.v3beta1.TranslationServiceClient;
 import com.google.cloud.translate.v3beta1.TranslationServiceSettings;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.retryutils.RetryTemplateFactory;
+import moe.pine.translatebot.translator.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.support.RetryTemplate;
 
@@ -22,7 +23,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 @Slf4j
-public class GcpTranslator {
+public class GcpTranslator implements Translator {
     private final TranslationServiceClient translationServiceClient;
     private final LocationName locationName;
     private final RetryTemplate retryTemplate;
@@ -64,6 +65,7 @@ public class GcpTranslator {
         this.retryTemplate = retryTemplate;
     }
 
+    @Override
     public Optional<String> translate(final String content) {
         if (StringUtils.isEmpty(content)) {
             return Optional.empty();

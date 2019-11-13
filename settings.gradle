@@ -19,3 +19,6 @@ project(':lib-gcp-translator').projectDir = new File(settingsDir, '/libs/gcp-tra
 
 include ':lib-microsoft-translator'
 project(':lib-microsoft-translator').projectDir = new File(settingsDir, '/libs/microsoft-translator')
+
+include ':lib-translator'
+project(':lib-translator').projectDir = new File(settingsDir, '/libs/translator')

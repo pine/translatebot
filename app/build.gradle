@@ -1,10 +1,12 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
+    // Sub-projects
     implementation project(':lib-log')
     implementation project(':lib-slack')
 
     // Sub-projects : Translators
+    implementation project(':lib-translator')
     implementation project(':lib-gcp-translator')
     implementation project(':lib-microsoft-translator')
 
