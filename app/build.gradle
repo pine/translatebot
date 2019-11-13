@@ -1,9 +1,5 @@
 apply plugin: 'org.springframework.boot'
 
-configurations {
-    implementation.exclude module: 'spring-boot-starter-tomcat'
-}
-
 dependencies {
     implementation project(':lib-log')
     implementation project(':lib-slack')
