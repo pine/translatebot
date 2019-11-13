@@ -1,14 +1,17 @@
 package moe.pine.translatebot.properties;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-@ConfigurationProperties("gcp")
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@ConfigurationProperties("gcp-translator")
 public class GcpTranslatorProperties {
-    private @NotBlank String credentials;
-    private @NotBlank String projectId;
-    private @NotBlank String location;
+    @NotBlank String credentials;
+    @NotBlank String projectId;
+    @NotBlank String location;
 }
