@@ -1,6 +1,8 @@
 package moe.pine.translatebot.properties;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.validation.constraints.NotBlank;
@@ -9,9 +11,10 @@ import java.util.Set;
 
 @Data
 @ConfigurationProperties("slack")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SlackProperties {
-    private @NotNull Set<String> channels;
-    private @NotBlank String iconUrl;
-    private @NotBlank String token;
-    private @NotBlank String username;
+    @NotNull Set<String> channels;
+    @NotBlank String iconUrl;
+    @NotBlank String token;
+    @NotBlank String username;
 }
