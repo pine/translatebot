@@ -12,6 +12,7 @@ import com.google.cloud.translate.v3beta1.TranslationServiceClient;
 import com.google.cloud.translate.v3beta1.TranslationServiceSettings;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.retry.support.RetryTemplateFactory;
+import moe.pine.translatebot.translator.Lang;
 import moe.pine.translatebot.translator.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.support.RetryTemplate;
@@ -71,11 +72,19 @@ public class GcpTranslator implements Translator {
     }
 
     @Override
-    public Mono<Optional<String>> translate(String content) {
-        return Mono.create(sink -> sink.success(translateImpl(content)));
+    public Mono<Optional<String>> translate(
+        final Lang from,
+        final Lang to,
+        final String content
+    ) {
+        return Mono.create(sink -> sink.success(translateImpl(from, to, content)));
     }
 
-    Optional<String> translateImpl(final String content) {
+    Optional<String> translateImpl(
+        final Lang from,
+        final Lang to,
+        final String content
+    ) {
         if (StringUtils.isEmpty(content)) {
             return Optional.empty();
         }
@@ -84,8 +93,8 @@ public class GcpTranslator implements Translator {
             TranslateTextRequest.newBuilder()
                 .setParent(locationName.toString())
                 .setMimeType("text/plain")
-                .setSourceLanguageCode(Locale.ENGLISH.getLanguage())
-                .setTargetLanguageCode(Locale.JAPANESE.getLanguage())
+                .setSourceLanguageCode(from.getCode())
+                .setTargetLanguageCode(to.getCode())
                 .addContents(content)
                 .build();
 

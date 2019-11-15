@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import moe.pine.translatebot.translator.Lang;
 import moe.pine.translatebot.translator.Translator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +16,6 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 public class MicrosoftTranslator implements Translator {
@@ -38,18 +38,22 @@ public class MicrosoftTranslator implements Translator {
     }
 
     @Override
-    public Mono<Optional<String>> translate(String text) {
-        if (StringUtils.isEmpty(text)) {
+    public Mono<Optional<String>> translate(
+        final Lang from,
+        final Lang to,
+        final String content
+    ) {
+        if (StringUtils.isEmpty(content)) {
             return Mono.just(Optional.empty());
         }
 
         final TranslateRequestParameters requestParameters =
             TranslateRequestParameters.builder()
-                .from("en")
-                .to("ja")
+                .from(from.getCode())
+                .to(to.getCode())
                 .build();
         final TranslateRequestBody[] requestBody =
-            new TranslateRequestBody[]{new TranslateRequestBody(text)};
+            new TranslateRequestBody[]{new TranslateRequestBody(content)};
 
         final byte[] bodyValue;
         try {

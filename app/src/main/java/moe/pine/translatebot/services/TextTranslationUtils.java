@@ -7,6 +7,7 @@ import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
 import moe.pine.translatebot.services.translation.LabeledTranslator;
 import moe.pine.translatebot.services.translation.TranslatedText;
 import moe.pine.translatebot.services.translation.TranslatorId;
+import moe.pine.translatebot.translator.Lang;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -53,7 +54,7 @@ public class TextTranslationUtils {
                 .stream()
                 .map(labeledTranslator ->
                     labeledTranslator.getTranslator()
-                        .translate(replacedText)
+                        .translate(Lang.EN, Lang.JA, replacedText)
                         .flatMap(translatedTextOpt -> {
                             if (translatedTextOpt.isEmpty()) {
                                 return Mono.empty();
