@@ -10,5 +10,6 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     // Apache Commons
+    implementation 'org.apache.commons:commons-collections4'
     implementation 'org.apache.commons:commons-lang3'
 }

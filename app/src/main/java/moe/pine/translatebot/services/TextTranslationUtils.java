@@ -3,6 +3,7 @@ package moe.pine.translatebot.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.gcp.translator.GcpTranslator;
+import moe.pine.translatebot.microsoft.translator.MicrosoftTranslator;
 import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ public class TextTranslationUtils {
     private static final String POSTING_TEXT_FORMAT = ":jp: %s";
 
     private final GcpTranslator gcpTranslator;
+    private final MicrosoftTranslator microsoftTranslator;
     private final TextSplitter textSplitter;
     private final CompositeVariableProcessor compositeVariableProcessor;
 
@@ -30,6 +32,7 @@ public class TextTranslationUtils {
         final Optional<String> translatedTextOpt;
         try {
             translatedTextOpt = gcpTranslator.translate(replacedText).get();
+            //translatedTextOpt = microsoftTranslator.translate(replacedText).get();
         } catch (ExecutionException e) {
             e.printStackTrace();
             return Optional.empty();
@@ -43,9 +46,9 @@ public class TextTranslationUtils {
         log.info("Translated from \"{}\" to \"{}\"", splitTexts.getText(), translatedText);
 
         final String joinedText =
-                String.format(
-                        POSTING_TEXT_FORMAT,
-                        splitTexts.getPreText() + translatedText + splitTexts.getPostText());
+            String.format(
+                POSTING_TEXT_FORMAT,
+                splitTexts.getPreText() + translatedText + splitTexts.getPostText());
 
         return Optional.of(joinedText);
     }

@@ -9,5 +9,5 @@ import javax.validation.constraints.NotBlank;
 @ConfigurationProperties("microsoft-translator")
 public class MicrosoftTranslatorProperties {
     private @NotBlank String subscriptionKey;
-    private @NotBlank String endpoint;
+    private @NotBlank String baseUrl;
 }

@@ -3,9 +3,8 @@ package moe.pine.translatebot.microsoft.translator;
 import lombok.Builder;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @Value
 @Builder
@@ -15,13 +14,13 @@ public class TranslateRequestParameters {
     String from;
     String to;
 
-    public Map<String, ?> toMap() {
-        final HashMap<String, String> m = new HashMap<>();
-        m.put("api-version", API_VERSION);
+    public MultiValueMap<String, String> toMap() {
+        final MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        parameters.add("api-version", API_VERSION);
 
-        if (StringUtils.isNotEmpty(from)) m.put("from", from);
-        if (StringUtils.isNotEmpty(to)) m.put("to", to);
+        if (StringUtils.isNotEmpty(from)) parameters.add("from", from);
+        if (StringUtils.isNotEmpty(to)) parameters.add("to", to);
 
-        return m;
+        return parameters;
     }
 }

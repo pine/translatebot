@@ -17,7 +17,7 @@ public class MicrosoftTranslatorConfig {
     ) {
         return new MicrosoftTranslator(
             microsoftTranslatorProperties.getSubscriptionKey(),
-            microsoftTranslatorProperties.getEndpoint(),
+            microsoftTranslatorProperties.getBaseUrl(),
             webClientBuilder
         );
     }
