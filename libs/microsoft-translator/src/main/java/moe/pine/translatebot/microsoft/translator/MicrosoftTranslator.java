@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import moe.pine.translatebot.translator.Detector;
 import moe.pine.translatebot.translator.Lang;
 import moe.pine.translatebot.translator.Translator;
 import org.apache.commons.collections4.CollectionUtils;
@@ -18,7 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
-public class MicrosoftTranslator implements Translator {
+public class MicrosoftTranslator implements Translator, Detector {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -90,5 +91,10 @@ public class MicrosoftTranslator implements Translator {
 
                 return Optional.of(translatedText);
             });
+    }
+
+    @Override
+    public Mono<Optional<Lang>> detect(final String content) {
+        throw new RuntimeException();
     }
 }
