@@ -1,9 +1,10 @@
 package moe.pine.translatebot.services.translation;
 
 import lombok.Value;
+import moe.pine.translatebot.translator.Translator;
 
 @Value
-public class TranslatedText {
+public class LabeledTranslator {
     TranslatorId translatorId;
-    String text;
+    Translator translator;
 }

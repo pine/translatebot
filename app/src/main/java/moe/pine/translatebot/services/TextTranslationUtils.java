@@ -1,25 +1,18 @@
 package moe.pine.translatebot.services;
 
-import com.google.common.collect.Streams;
-import com.spotify.futures.CompletableFutures;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.gcp.translator.GcpTranslator;
 import moe.pine.translatebot.microsoft.translator.MicrosoftTranslator;
 import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
+import moe.pine.translatebot.services.translation.LabeledTranslator;
 import moe.pine.translatebot.services.translation.TranslatedText;
 import moe.pine.translatebot.services.translation.TranslatorId;
-import moe.pine.translatebot.translator.Translator;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,7 +23,7 @@ public class TextTranslationUtils {
 
     private final TextSplitter textSplitter;
     private final CompositeVariableProcessor compositeVariableProcessor;
-    private final List<Pair<TranslatorId, Translator>> translators;
+    private final List<LabeledTranslator> translators;
 
     public TextTranslationUtils(
         final TextSplitter textSplitter,
@@ -41,12 +34,11 @@ public class TextTranslationUtils {
         this.textSplitter = textSplitter;
         this.compositeVariableProcessor = compositeVariableProcessor;
         this.translators = List.of(
-            Pair.of(TranslatorId.GCP_TRANSLATOR, gcpTranslator),
-            Pair.of(TranslatorId.MICROSOFT_TRANSLATOR, microsoftTranslator)
+            new LabeledTranslator(TranslatorId.GCP_TRANSLATOR, gcpTranslator),
+            new LabeledTranslator(TranslatorId.MICROSOFT_TRANSLATOR, microsoftTranslator)
         );
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public List<TranslatedText> translate(final String text) throws InterruptedException {
         final Optional<TextSplitter.Result> splitTextsOpt = textSplitter.split(text);
         if (splitTextsOpt.isEmpty()) {
@@ -56,40 +48,41 @@ public class TextTranslationUtils {
         final TextSplitter.Result splitTexts = splitTextsOpt.get();
         final String replacedText = compositeVariableProcessor.execute(splitTexts.getText());
 
-        final List<CompletableFuture<Optional<String>>> translatedTextOptsFutures =
+        final var translatedTextOptsMonos =
             translators
                 .stream()
-                .map(pair -> pair.getValue().translate(replacedText))
+                .map(labeledTranslator ->
+                    labeledTranslator.getTranslator()
+                        .translate(replacedText)
+                        .flatMap(translatedTextOpt -> {
+                            if (translatedTextOpt.isEmpty()) {
+                                return Mono.empty();
+                            }
+
+                            final TranslatorId translatorId = labeledTranslator.getTranslatorId();
+                            final String translatedText = translatedTextOpt.get();
+                            return Mono.just(new TranslatedText(translatorId, translatedText));
+                        })
+                )
                 .collect(Collectors.toUnmodifiableList());
 
-        final List<Optional<String>> translatedTextOpts;
-        try {
-            translatedTextOpts = CompletableFutures.allAsList(translatedTextOptsFutures).get();
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
+
+        final List<TranslatedText> translatedTexts =
+            Flux.merge(translatedTextOptsMonos).collectList().block();
+        if (translatedTexts == null) {
+            return List.of();
         }
 
-        return Streams.zip(
-            translators.stream().map(Pair::getKey),
-            translatedTextOpts.stream(),
-            Pair::of
-        )
-            .flatMap(pair -> {
-                final TranslatorId translatorId = pair.getKey();
-                final Optional<String> translatedTextOpt = pair.getValue();
-
-                if (translatedTextOpt.isEmpty()) {
-                    return Stream.empty();
-                }
-
-                final String translatedText = translatedTextOpt.get();
-                log.info("Translated from \"{}\" to \"{}\"", splitTexts.getText(), translatedText);
+        return translatedTexts
+            .stream()
+            .flatMap(translatedText -> {
+                log.info("Translated from \"{}\" to \"{}\"", splitTexts.getText(), translatedText.getText());
 
                 final String joinedText =
                     String.format(
                         POSTING_TEXT_FORMAT,
                         splitTexts.getPreText() + translatedText + splitTexts.getPostText());
-                return Stream.of(new TranslatedText(translatorId, joinedText));
+                return Stream.of(new TranslatedText(translatedText.getTranslatorId(), joinedText));
             })
             .collect(Collectors.toUnmodifiableList());
     }

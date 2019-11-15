@@ -9,6 +9,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.UncheckedIOException;
 import java.util.List;
@@ -37,9 +38,9 @@ public class MicrosoftTranslator implements Translator {
     }
 
     @Override
-    public CompletableFuture<Optional<String>> translate(String text) {
+    public Mono<Optional<String>> translate(String text) {
         if (StringUtils.isEmpty(text)) {
-            return CompletableFuture.completedFuture(Optional.empty());
+            return Mono.just(Optional.empty());
         }
 
         final TranslateRequestParameters requestParameters =
@@ -84,7 +85,6 @@ public class MicrosoftTranslator implements Translator {
                 }
 
                 return Optional.of(translatedText);
-            })
-            .toFuture();
+            });
     }
 }

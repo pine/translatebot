@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,9 +70,13 @@ public class GcpTranslator implements Translator {
         this.retryTemplate = retryTemplate;
     }
 
-    @Async
     @Override
-    public CompletableFuture<Optional<String>> translate(final String content) {
+    public Mono<Optional<String>> translate(String content) {
+        return Mono.fromFuture(translateImpl(content));
+    }
+
+    @Async
+    CompletableFuture<Optional<String>> translateImpl(final String content) {
         if (StringUtils.isEmpty(content)) {
             return CompletableFuture.completedFuture(Optional.empty());
         }

@@ -1,9 +1,9 @@
 package moe.pine.translatebot.translator;
 
+import reactor.core.publisher.Mono;
+
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 public interface Translator {
-    CompletableFuture<Optional<String>> translate(String text);
+    Mono<Optional<String>> translate(String content);
 }

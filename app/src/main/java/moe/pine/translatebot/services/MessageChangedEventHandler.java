@@ -45,7 +45,7 @@ public class MessageChangedEventHandler {
                 .map(translatedText ->
                     new TextField(
                         translatedText.getTranslatorId().getTitle(),
-                        translatedText.getTranslatedText()))
+                        translatedText.getText()))
                 .collect(Collectors.toUnmodifiableList());
 
         final SentLog sentLog = sentLogOpt.get();

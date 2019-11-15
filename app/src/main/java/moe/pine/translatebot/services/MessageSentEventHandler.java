@@ -14,7 +14,6 @@ import moe.pine.translatebot.slack.TextField;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ public class MessageSentEventHandler {
                 .map(translatedText ->
                     new TextField(
                         translatedText.getTranslatorId().getTitle(),
-                        translatedText.getTranslatedText()))
+                        translatedText.getText()))
                 .collect(Collectors.toUnmodifiableList());
 
         final boolean replyBroadcast =
