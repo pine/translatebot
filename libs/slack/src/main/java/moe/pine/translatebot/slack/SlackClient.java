@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 @Slf4j
 public class SlackClient {
@@ -27,36 +26,37 @@ public class SlackClient {
 
     public SlackClient(final String token) {
         this(token,
-            RetryTemplateFactory.create(
-                5, 500, 2.0, SlackClientException.class),
-            RetryTemplateFactory.createUnlimited(
-                500, 60 * 1000, 2.0, SlackClientException.class));
+                RetryTemplateFactory.create(
+                        5, 500, 2.0, SlackClientException.class),
+                RetryTemplateFactory.createUnlimited(
+                        500, 60 * 1000, 2.0, SlackClientException.class));
     }
 
     SlackClient(
-        final String token,
-        final RetryTemplate retryTemplate,
-        final RetryTemplate unlimitedRetryTemplate
+            final String token,
+            final RetryTemplate retryTemplate,
+            final RetryTemplate unlimitedRetryTemplate
     ) {
         Objects.requireNonNull(retryTemplate);
         Objects.requireNonNull(unlimitedRetryTemplate);
 
         this.slackRtmClient = new SlackRtmClient(
-            token,
-            stateManager,
-            retryTemplate,
-            unlimitedRetryTemplate);
+                token,
+                stateManager,
+                retryTemplate,
+                unlimitedRetryTemplate);
         this.slackWebClient = new SlackWebClient(
-            token,
-            stateManager,
-            retryTemplate);
+                token,
+                stateManager,
+                retryTemplate);
     }
 
-    public void addEventListener(final Consumer<Event> listener) {
+    public void addEventListener(final EventListener listener) {
+
         slackRtmClient.addEventListener(listener);
     }
 
-    public void removeEventListener(final Consumer<Event> listener) {
+    public void removeEventListener(final EventListener listener) {
         slackRtmClient.removeEventListener(listener);
     }
 

@@ -1,7 +1,8 @@
 package moe.pine.translatebot.translator;
 
 import java.util.Optional;
+import java.util.concurrent.Future;
 
 public interface Translator {
-    Optional<String> translate(String text);
+    Future<Optional<String>> translate(String text);
 }

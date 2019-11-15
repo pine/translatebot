@@ -3,6 +3,7 @@ package moe.pine.translatebot.services;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.properties.SlackProperties;
 import moe.pine.translatebot.slack.Event;
+import moe.pine.translatebot.slack.EventListener;
 import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.MessageEvent.Subtypes;
 import moe.pine.translatebot.slack.SlackClient;
@@ -25,7 +26,7 @@ public class BotService {
     private final MessageSentEventHandler messageSentEventHandler;
     private final Instant startupTime;
 
-    private final Consumer<Event> eventConsumer = this::onEvent;
+    private final EventListener eventConsumer = this::onEvent;
 
     public BotService(
             final SlackProperties slackProperties,
@@ -50,13 +51,13 @@ public class BotService {
         slackClient.removeEventListener(eventConsumer);
     }
 
-    private void onEvent(final Event event) {
+    private void onEvent(final Event event) throws InterruptedException {
         if (event instanceof MessageEvent) {
             onMessageEvent((MessageEvent) event);
         }
     }
 
-    private void onMessageEvent(final MessageEvent messageEvent) {
+    private void onMessageEvent(final MessageEvent messageEvent) throws InterruptedException {
         final double ts = Double.parseDouble(messageEvent.getTs());
         if (ts < startupTime.getEpochSecond()) {
             return;

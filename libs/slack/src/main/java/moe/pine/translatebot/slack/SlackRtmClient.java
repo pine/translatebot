@@ -13,7 +13,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 
 @Slf4j
 class SlackRtmClient {
@@ -21,13 +20,13 @@ class SlackRtmClient {
     private final RetryTemplate unlimitedRetryTemplate;
     private final RTMClient rtmClient;
 
-    private final List<Consumer<Event>> eventListeners = new CopyOnWriteArrayList<>();
+    private final List<EventListener> eventListeners = new CopyOnWriteArrayList<>();
 
     SlackRtmClient(
-        final String token,
-        final StateManager stateManager,
-        final RetryTemplate retryTemplate,
-        final RetryTemplate unlimitedRetryTemplate
+            final String token,
+            final StateManager stateManager,
+            final RetryTemplate retryTemplate,
+            final RetryTemplate unlimitedRetryTemplate
     ) {
         this.stateManager = stateManager;
         this.unlimitedRetryTemplate = unlimitedRetryTemplate;
@@ -53,11 +52,11 @@ class SlackRtmClient {
         });
     }
 
-    void addEventListener(final Consumer<Event> listener) {
+    void addEventListener(final EventListener listener) {
         eventListeners.add(listener);
     }
 
-    void removeEventListener(final Consumer<Event> listener) {
+    void removeEventListener(final EventListener listener) {
         eventListeners.remove(listener);
     }
 
@@ -70,8 +69,20 @@ class SlackRtmClient {
         stateManager.throwIfAlreadyClosed();
 
         final Optional<Event> eventOpt = Events.parse(content);
-        eventOpt.ifPresent(event ->
-            eventListeners.forEach(listener -> listener.accept(event)));
+        if (eventOpt.isEmpty()) {
+            return;
+        }
+
+        final Event event = eventOpt.get();
+        try {
+            for (final EventListener listener : eventListeners) {
+                stateManager.throwIfAlreadyClosed();
+                listener.accept(event);
+            }
+        } catch (InterruptedException e) {
+            log.error("Event listener is interrupted", e);
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void onError(final Throwable error) {
