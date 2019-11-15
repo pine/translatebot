@@ -6,6 +6,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
     // Apache Commons
     implementation 'org.apache.commons:commons-lang3'
 }
