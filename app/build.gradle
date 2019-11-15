@@ -32,7 +32,6 @@ dependencies {
 
     // Utilities
     implementation 'com.google.guava:guava'
-    implementation 'com.spotify:completable-futures'
 
     // My libraries
     implementation 'moe.pine:heroku-addons'
