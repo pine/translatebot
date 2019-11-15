@@ -13,6 +13,9 @@ public class MicrosoftTranslatorConfig {
     public MicrosoftTranslator microsoftTranslator(
             final MicrosoftTranslatorProperties microsoftTranslatorProperties
     ) {
-        return new MicrosoftTranslator("TODO");
+        return new MicrosoftTranslator(
+                microsoftTranslatorProperties.getSubscriptionKey(),
+                microsoftTranslatorProperties.getEndpoint()
+        );
     }
 }
