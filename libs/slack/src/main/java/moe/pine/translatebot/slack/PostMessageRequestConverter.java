@@ -2,25 +2,36 @@ package moe.pine.translatebot.slack;
 
 import com.github.seratch.jslack.api.methods.request.chat.ChatPostMessageRequest;
 import com.github.seratch.jslack.api.model.Attachment;
+import com.github.seratch.jslack.api.model.Field;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 class PostMessageRequestConverter {
     ChatPostMessageRequest convert(
-        final PostMessageRequest message
+        final PostMessageRequest postMessageRequest
     ) {
+        final List<Field> fields =
+            postMessageRequest.getTextFields()
+                .stream()
+                .map(v -> Field.builder()
+                    .title(v.getTitle())
+                    .value(v.getValue())
+                    .build())
+                .collect(Collectors.toUnmodifiableList());
+
         final Attachment attachment =
             Attachment.builder()
-                .text(message.getText())
+                .fields(fields)
                 .build();
 
         return ChatPostMessageRequest.builder()
-            .username(message.getUsername())
-            .threadTs(message.getThreadTs())
-            .channel(message.getChannel())
+            .username(postMessageRequest.getUsername())
+            .threadTs(postMessageRequest.getThreadTs())
+            .channel(postMessageRequest.getChannel())
             .attachments(List.of(attachment))
-            .iconUrl(message.getIconUrl())
-            .replyBroadcast(message.isReplyBroadcast())
+            .iconUrl(postMessageRequest.getIconUrl())
+            .replyBroadcast(postMessageRequest.isReplyBroadcast())
             .build();
     }
 }

@@ -78,6 +78,7 @@ subprojects {
             dependency "org.projectlombok:lombok:$lombokVersion"
             dependency 'moe.pine:heroku-addons:0.2.1'
             dependency 'moe.pine:spring-cache-interceptors:0.1.2'
+            dependency 'com.spotify:completable-futures:0.3.1'
 
             // Test
             dependency 'junit:junit:4.12'
