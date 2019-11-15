@@ -1,55 +1,89 @@
 package moe.pine.translatebot.services;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.gcp.translator.GcpTranslator;
 import moe.pine.translatebot.microsoft.translator.MicrosoftTranslator;
 import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
+import moe.pine.translatebot.services.translation.LabeledTranslator;
+import moe.pine.translatebot.services.translation.TranslatedText;
+import moe.pine.translatebot.services.translation.TranslatorId;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class TextTranslationUtils {
     private static final String POSTING_TEXT_FORMAT = ":jp: %s";
 
-    private final GcpTranslator gcpTranslator;
-    private final MicrosoftTranslator microsoftTranslator;
     private final TextSplitter textSplitter;
     private final CompositeVariableProcessor compositeVariableProcessor;
+    private final List<LabeledTranslator> translators;
 
-    public Optional<String> translate(final String text) throws InterruptedException {
+    public TextTranslationUtils(
+        final TextSplitter textSplitter,
+        final CompositeVariableProcessor compositeVariableProcessor,
+        final GcpTranslator gcpTranslator,
+        final MicrosoftTranslator microsoftTranslator
+    ) {
+        this.textSplitter = textSplitter;
+        this.compositeVariableProcessor = compositeVariableProcessor;
+        this.translators = List.of(
+            new LabeledTranslator(TranslatorId.GCP_TRANSLATOR, gcpTranslator),
+            new LabeledTranslator(TranslatorId.MICROSOFT_TRANSLATOR, microsoftTranslator)
+        );
+    }
+
+    public List<TranslatedText> translate(final String text) throws InterruptedException {
         final Optional<TextSplitter.Result> splitTextsOpt = textSplitter.split(text);
         if (splitTextsOpt.isEmpty()) {
-            return Optional.empty();
+            return List.of();
         }
 
         final TextSplitter.Result splitTexts = splitTextsOpt.get();
         final String replacedText = compositeVariableProcessor.execute(splitTexts.getText());
-        final Optional<String> translatedTextOpt;
-        try {
-            translatedTextOpt = gcpTranslator.translate(replacedText).get();
-            //translatedTextOpt = microsoftTranslator.translate(replacedText).get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return Optional.empty();
+
+        final var translatedTextOptsMonos =
+            translators
+                .stream()
+                .map(labeledTranslator ->
+                    labeledTranslator.getTranslator()
+                        .translate(replacedText)
+                        .flatMap(translatedTextOpt -> {
+                            if (translatedTextOpt.isEmpty()) {
+                                return Mono.empty();
+                            }
+
+                            final TranslatorId translatorId = labeledTranslator.getTranslatorId();
+                            final String translatedText = translatedTextOpt.get();
+                            return Mono.just(new TranslatedText(translatorId, translatedText));
+                        })
+                )
+                .collect(Collectors.toUnmodifiableList());
+
+
+        final List<TranslatedText> translatedTexts =
+            Flux.merge(translatedTextOptsMonos).collectList().block();
+        if (translatedTexts == null) {
+            return List.of();
         }
 
-        if (translatedTextOpt.isEmpty()) {
-            return Optional.empty();
-        }
+        return translatedTexts
+            .stream()
+            .flatMap(translatedText -> {
+                log.info("Translated from \"{}\" to \"{}\"", splitTexts.getText(), translatedText.getText());
 
-        final String translatedText = translatedTextOpt.get();
-        log.info("Translated from \"{}\" to \"{}\"", splitTexts.getText(), translatedText);
-
-        final String joinedText =
-            String.format(
-                POSTING_TEXT_FORMAT,
-                splitTexts.getPreText() + translatedText + splitTexts.getPostText());
-
-        return Optional.of(joinedText);
+                final String joinedText =
+                    String.format(
+                        POSTING_TEXT_FORMAT,
+                        splitTexts.getPreText() + translatedText.getText() + splitTexts.getPostText());
+                return Stream.of(new TranslatedText(translatedText.getTranslatorId(), joinedText));
+            })
+            .collect(Collectors.toUnmodifiableList());
     }
 }

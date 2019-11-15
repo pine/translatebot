@@ -17,12 +17,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 @Slf4j
@@ -32,72 +34,75 @@ public class GcpTranslator implements Translator {
     private final RetryTemplate retryTemplate;
 
     public GcpTranslator(
-            final InputStream credentialsStream,
-            final String projectId,
-            final String location
+        final InputStream credentialsStream,
+        final String projectId,
+        final String location
     ) throws IOException {
         this(credentialsStream,
-                projectId,
-                location,
-                RetryTemplateFactory.create(5, 500, 2.0, ApiException.class));
+            projectId,
+            location,
+            RetryTemplateFactory.create(5, 500, 2.0, ApiException.class));
     }
 
     GcpTranslator(
-            final InputStream credentialsStream,
-            final String projectId,
-            final String location,
-            final RetryTemplate retryTemplate
+        final InputStream credentialsStream,
+        final String projectId,
+        final String location,
+        final RetryTemplate retryTemplate
     ) throws IOException {
         final GoogleCredentials credentials =
-                GoogleCredentials.fromStream(credentialsStream);
+            GoogleCredentials.fromStream(credentialsStream);
         final CredentialsProvider credentialsProvider =
-                FixedCredentialsProvider.create(credentials);
+            FixedCredentialsProvider.create(credentials);
         final TranslationServiceSettings translationServiceSettings =
-                TranslationServiceSettings.newBuilder()
-                        .setCredentialsProvider(credentialsProvider)
-                        .build();
+            TranslationServiceSettings.newBuilder()
+                .setCredentialsProvider(credentialsProvider)
+                .build();
 
         translationServiceClient =
-                TranslationServiceClient.create(translationServiceSettings);
+            TranslationServiceClient.create(translationServiceSettings);
         locationName =
-                LocationName.newBuilder()
-                        .setProject(projectId)
-                        .setLocation(location)
-                        .build();
+            LocationName.newBuilder()
+                .setProject(projectId)
+                .setLocation(location)
+                .build();
 
         this.retryTemplate = retryTemplate;
     }
 
-    @Async
     @Override
-    public Future<Optional<String>> translate(final String content) {
+    public Mono<Optional<String>> translate(String content) {
+        return Mono.create(sink -> sink.success(translateImpl(content)));
+    }
+
+    Optional<String> translateImpl(final String content) {
         if (StringUtils.isEmpty(content)) {
-            return new AsyncResult<>(Optional.empty());
+            return Optional.empty();
         }
 
         final TranslateTextRequest translateTextRequest =
-                TranslateTextRequest.newBuilder()
-                        .setParent(locationName.toString())
-                        .setMimeType("text/plain")
-                        .setSourceLanguageCode(Locale.ENGLISH.getLanguage())
-                        .setTargetLanguageCode(Locale.JAPANESE.getLanguage())
-                        .addContents(content)
-                        .build();
+            TranslateTextRequest.newBuilder()
+                .setParent(locationName.toString())
+                .setMimeType("text/plain")
+                .setSourceLanguageCode(Locale.ENGLISH.getLanguage())
+                .setTargetLanguageCode(Locale.JAPANESE.getLanguage())
+                .addContents(content)
+                .build();
 
         final TranslateTextResponse translateTextResponse =
-                retryTemplate.execute(ctx ->
-                        translationServiceClient.translateText(translateTextRequest));
+            retryTemplate.execute(ctx ->
+                translationServiceClient.translateText(translateTextRequest));
 
         final List<Translation> translations = translateTextResponse.getTranslationsList();
         if (translations.isEmpty()) {
-            return new AsyncResult<>(Optional.empty());
+            return Optional.empty();
         }
 
         final String translatedText = translations.get(0).getTranslatedText();
         if (StringUtils.isEmpty(translatedText)) {
-            return new AsyncResult<>(Optional.empty());
+            return Optional.empty();
         }
 
-        return new AsyncResult<>(Optional.of(translatedText));
+        return Optional.of(translatedText);
     }
 }

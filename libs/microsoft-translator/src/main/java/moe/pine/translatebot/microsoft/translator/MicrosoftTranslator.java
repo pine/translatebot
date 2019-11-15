@@ -8,14 +8,14 @@ import moe.pine.translatebot.translator.Translator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 public class MicrosoftTranslator implements Translator {
@@ -38,9 +38,9 @@ public class MicrosoftTranslator implements Translator {
     }
 
     @Override
-    public Future<Optional<String>> translate(String text) {
+    public Mono<Optional<String>> translate(String text) {
         if (StringUtils.isEmpty(text)) {
-            return new AsyncResult<>(Optional.empty());
+            return Mono.just(Optional.empty());
         }
 
         final TranslateRequestParameters requestParameters =
@@ -85,7 +85,6 @@ public class MicrosoftTranslator implements Translator {
                 }
 
                 return Optional.of(translatedText);
-            })
-            .toFuture();
+            });
     }
 }
