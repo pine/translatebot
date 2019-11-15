@@ -72,13 +72,12 @@ public class GcpTranslator implements Translator {
 
     @Override
     public Mono<Optional<String>> translate(String content) {
-        return Mono.fromFuture(translateImpl(content));
+        return Mono.create(sink -> sink.success(translateImpl(content)));
     }
 
-    @Async
-    CompletableFuture<Optional<String>> translateImpl(final String content) {
+    Optional<String> translateImpl(final String content) {
         if (StringUtils.isEmpty(content)) {
-            return CompletableFuture.completedFuture(Optional.empty());
+            return Optional.empty();
         }
 
         final TranslateTextRequest translateTextRequest =
@@ -96,14 +95,14 @@ public class GcpTranslator implements Translator {
 
         final List<Translation> translations = translateTextResponse.getTranslationsList();
         if (translations.isEmpty()) {
-            return CompletableFuture.completedFuture(Optional.empty());
+            return Optional.empty();
         }
 
         final String translatedText = translations.get(0).getTranslatedText();
         if (StringUtils.isEmpty(translatedText)) {
-            return CompletableFuture.completedFuture(Optional.empty());
+            return Optional.empty();
         }
 
-        return CompletableFuture.completedFuture(Optional.of(translatedText));
+        return Optional.of(translatedText);
     }
 }

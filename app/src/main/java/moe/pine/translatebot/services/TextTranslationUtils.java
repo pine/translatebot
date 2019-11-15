@@ -81,7 +81,7 @@ public class TextTranslationUtils {
                 final String joinedText =
                     String.format(
                         POSTING_TEXT_FORMAT,
-                        splitTexts.getPreText() + translatedText + splitTexts.getPostText());
+                        splitTexts.getPreText() + translatedText.getText() + splitTexts.getPostText());
                 return Stream.of(new TranslatedText(translatedText.getTranslatorId(), joinedText));
             })
             .collect(Collectors.toUnmodifiableList());
