@@ -14,7 +14,6 @@ import javax.annotation.PreDestroy;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Set;
-import java.util.function.Consumer;
 
 @Slf4j
 @Service
@@ -29,12 +28,12 @@ public class BotService {
     private final EventListener eventConsumer = this::onEvent;
 
     public BotService(
-            final SlackProperties slackProperties,
-            final SlackClient slackClient,
-            final MessageChangedEventHandler messageChangedEventHandler,
-            final MessageDeletedEventHandler messageDeletedEventHandler,
-            final MessageSentEventHandler messageSentEventHandler,
-            final Clock clock
+        final SlackProperties slackProperties,
+        final SlackClient slackClient,
+        final MessageChangedEventHandler messageChangedEventHandler,
+        final MessageDeletedEventHandler messageDeletedEventHandler,
+        final MessageSentEventHandler messageSentEventHandler,
+        final Clock clock
     ) {
         this.slackProperties = slackProperties;
         this.slackClient = slackClient;
@@ -71,7 +70,7 @@ public class BotService {
         }
 
         if (StringUtils.isEmpty(messageEvent.getSubtype()) ||
-                Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype())) {
+            Subtypes.THREAD_BROADCAST.equals(messageEvent.getSubtype())) {
             messageSentEventHandler.execute(messageEvent);
         } else if (Subtypes.MESSAGE_CHANGED.equals(messageEvent.getSubtype())) {
             messageChangedEventHandler.execute(messageEvent);
