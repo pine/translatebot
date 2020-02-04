@@ -36,7 +36,7 @@ public class TextTranslationUtils {
         this.compositeVariableProcessor = compositeVariableProcessor;
         this.translators = List.of(
             new LabeledTranslator(TranslatorId.GCP_TRANSLATOR, gcpTranslator),
-            new LabeledTranslator(TranslatorId.MICROSOFT_TRANSLATOR, microsoftTranslator)
+        //    new LabeledTranslator(TranslatorId.MICROSOFT_TRANSLATOR, microsoftTranslator)
         );
     }
 
