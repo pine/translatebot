@@ -2,23 +2,9 @@ rootProject.name = 'translatebot'
 
 include ':app'
 
-include ':lib-log'
-project(':lib-log').projectDir = new File(settingsDir, '/libs/log')
-
-include ':lib-retry-support'
-project(':lib-retry-support').projectDir = new File(settingsDir, '/libs/retry-support')
-
-include ':lib-slack'
-project(':lib-slack').projectDir = new File(settingsDir, '/libs/slack')
-
-
-// Translators
-//~~~~~~~~~~~~~~~
-include ':lib-gcp-translator'
-project(':lib-gcp-translator').projectDir = new File(settingsDir, '/libs/gcp-translator')
-
-include ':lib-microsoft-translator'
-project(':lib-microsoft-translator').projectDir = new File(settingsDir, '/libs/microsoft-translator')
-
-include ':lib-translator'
-project(':lib-translator').projectDir = new File(settingsDir, '/libs/translator')
+for (File f : file('libs').listFiles()) {
+    if (f.directory) {
+        include(":lib-${f.name}")
+        project(":lib-${f.name}").projectDir = f
+    }
+}

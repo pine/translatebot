@@ -1,12 +1,11 @@
 package moe.pine.translatebot.services;
 
 import lombok.extern.slf4j.Slf4j;
-import moe.pine.translatebot.gcp.translator.GcpTranslator;
-import moe.pine.translatebot.microsoft.translator.MicrosoftTranslator;
 import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
 import moe.pine.translatebot.services.translation.LabeledTranslator;
 import moe.pine.translatebot.services.translation.TranslatedText;
 import moe.pine.translatebot.services.translation.TranslatorId;
+import moe.pine.translatebot.translator.GcpTranslator;
 import moe.pine.translatebot.translator.Lang;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -29,14 +28,13 @@ public class TextTranslationUtils {
     public TextTranslationUtils(
         final TextSplitter textSplitter,
         final CompositeVariableProcessor compositeVariableProcessor,
-        final GcpTranslator gcpTranslator,
-        final MicrosoftTranslator microsoftTranslator
+        final GcpTranslator gcpTranslator
     ) {
         this.textSplitter = textSplitter;
         this.compositeVariableProcessor = compositeVariableProcessor;
         this.translators = List.of(
             new LabeledTranslator(TranslatorId.GCP_TRANSLATOR, gcpTranslator)
-        //    new LabeledTranslator(TranslatorId.MICROSOFT_TRANSLATOR, microsoftTranslator)
+            //    new LabeledTranslator(TranslatorId.MICROSOFT_TRANSLATOR, microsoftTranslator)
         );
     }
 

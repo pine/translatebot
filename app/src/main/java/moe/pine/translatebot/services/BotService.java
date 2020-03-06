@@ -28,12 +28,12 @@ public class BotService {
     private final EventListener eventConsumer = this::onEvent;
 
     public BotService(
-        final SlackProperties slackProperties,
-        final SlackClient slackClient,
-        final MessageChangedEventHandler messageChangedEventHandler,
-        final MessageDeletedEventHandler messageDeletedEventHandler,
-        final MessageSentEventHandler messageSentEventHandler,
-        final Clock clock
+        SlackProperties slackProperties,
+        SlackClient slackClient,
+        MessageChangedEventHandler messageChangedEventHandler,
+        MessageDeletedEventHandler messageDeletedEventHandler,
+        MessageSentEventHandler messageSentEventHandler,
+        Clock clock
     ) {
         this.slackProperties = slackProperties;
         this.slackClient = slackClient;
@@ -50,21 +50,21 @@ public class BotService {
         slackClient.removeEventListener(eventConsumer);
     }
 
-    private void onEvent(final Event event) throws InterruptedException {
+    private void onEvent(Event event) throws InterruptedException {
         if (event instanceof MessageEvent) {
             onMessageEvent((MessageEvent) event);
         }
     }
 
-    private void onMessageEvent(final MessageEvent messageEvent) throws InterruptedException {
-        final double ts = Double.parseDouble(messageEvent.getTs());
+    private void onMessageEvent(MessageEvent messageEvent) throws InterruptedException {
+        double ts = Double.parseDouble(messageEvent.getTs());
         if (ts < startupTime.getEpochSecond()) {
             return;
         }
         if (StringUtils.isNotEmpty(messageEvent.getBotId())) {
             return;
         }
-        final Set<String> channels = slackProperties.getChannels();
+        Set<String> channels = slackProperties.getChannels();
         if (!channels.contains(messageEvent.getChannel())) {
             return;
         }

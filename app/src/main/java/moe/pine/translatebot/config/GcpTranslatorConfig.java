@@ -2,7 +2,7 @@ package moe.pine.translatebot.config;
 
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.properties.GcpTranslatorProperties;
-import moe.pine.translatebot.gcp.translator.GcpTranslator;
+import moe.pine.translatebot.translator.GcpTranslator;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

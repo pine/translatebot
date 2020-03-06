@@ -1,4 +1,4 @@
 dependencies {
     // Spring Framework
-    implementation 'org.springframework.retry:spring-retry'
+    api 'org.springframework.retry:spring-retry'
 }

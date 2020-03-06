@@ -1,4 +1,4 @@
-package moe.pine.translatebot.gcp.translator;
+package moe.pine.translatebot.translator;
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
@@ -11,22 +11,15 @@ import com.google.cloud.translate.v3beta1.Translation;
 import com.google.cloud.translate.v3beta1.TranslationServiceClient;
 import com.google.cloud.translate.v3beta1.TranslationServiceSettings;
 import lombok.extern.slf4j.Slf4j;
-import moe.pine.translatebot.retry.support.RetryTemplateFactory;
-import moe.pine.translatebot.translator.Lang;
-import moe.pine.translatebot.translator.Translator;
+import moe.pine.translatebot.retry_support.RetryTemplateFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 @Slf4j
 public class GcpTranslator implements Translator {
@@ -113,5 +106,10 @@ public class GcpTranslator implements Translator {
         }
 
         return Optional.of(translatedText);
+    }
+
+    @Override
+    public Mono<Optional<Lang>> detect(String content) {
+        throw new RuntimeException("not implemented");
     }
 }
