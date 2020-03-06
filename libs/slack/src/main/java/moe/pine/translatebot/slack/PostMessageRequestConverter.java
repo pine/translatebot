@@ -9,20 +9,11 @@ import java.util.stream.Collectors;
 
 class PostMessageRequestConverter {
     ChatPostMessageRequest convert(
-        final PostMessageRequest postMessageRequest
+        PostMessageRequest postMessageRequest
     ) {
-        final List<Field> fields =
-            postMessageRequest.getTextFields()
-                .stream()
-                .map(v -> Field.builder()
-                    .title(v.getTitle())
-                    .value(v.getValue())
-                    .build())
-                .collect(Collectors.toUnmodifiableList());
-
-        final Attachment attachment =
+        Attachment attachment =
             Attachment.builder()
-                .fields(fields)
+                .text(postMessageRequest.getText())
                 .build();
 
         return ChatPostMessageRequest.builder()

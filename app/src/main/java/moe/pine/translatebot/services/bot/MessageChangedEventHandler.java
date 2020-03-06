@@ -7,6 +7,7 @@ import moe.pine.translatebot.log.SentLogId;
 import moe.pine.translatebot.log.SentLogRepository;
 import moe.pine.translatebot.services.TextTranslationUtils;
 import moe.pine.translatebot.services._translation.TranslatedText;
+import moe.pine.translatebot.services.translation.TranslationService;
 import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.SlackClient;
 import moe.pine.translatebot.slack.TextField;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 class MessageChangedEventHandler {
     private final SlackClient slackClient;
     private final SentLogRepository sentLogRepository;
-    private final TextTranslationUtils textTranslationUtils;
+    private final TranslationService translationService;
 
     void execute(MessageEvent messageEvent) throws InterruptedException {
         if (messageEvent.getMessage().getEdited() == null) {
@@ -40,20 +41,16 @@ class MessageChangedEventHandler {
         }
 
         String text = messageEvent.getMessage().getText();
-        List<TranslatedText> translatedTexts = textTranslationUtils.translate(text);
-        List<TextField> textFields =
-            translatedTexts.stream()
-                .map(translatedText ->
-                    new TextField(
-                        translatedText.getTranslatorId().getTitle(),
-                        translatedText.getText()))
-                .collect(Collectors.toUnmodifiableList());
+        Optional<String> translatedTextOpt = translationService.translate(text);
+        if (translatedTextOpt.isEmpty()) {
+            return; // TODO
+        }
 
         SentLog sentLog = sentLogOpt.get();
         UpdateMessageRequest updateMessageRequest =
             UpdateMessageRequest.builder()
                 .channel(sentLog.getChannel())
-                .textFields(textFields)
+                .text(translatedTextOpt.get())
                 .ts(sentLog.getDestinationTs())
                 .build();
         slackClient.updateMessage(updateMessageRequest);

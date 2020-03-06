@@ -109,7 +109,7 @@ public class GcpTranslator implements Translator {
     }
 
     @Override
-    public Mono<Optional<Lang>> detect(String content) {
-        throw new RuntimeException("not implemented");
+    public Mono<Lang> detect(String content) {
+        return Mono.just(Lang.EN);
     }
 }

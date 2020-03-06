@@ -11,7 +11,7 @@ public class PostMessageRequest {
     private String username;
     private String threadTs;
     private String channel;
-    private List<TextField> textFields;
+    private String text;
     private String iconUrl;
     private boolean replyBroadcast;
 }
