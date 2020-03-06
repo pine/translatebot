@@ -20,9 +20,15 @@ buildscript {
     }
 }
 
-
-allprojects {
+configure(subprojects.findAll { relativePath(it.projectDir).startsWith('app') }) {
     apply plugin: 'java'
+}
+
+configure(subprojects.findAll { relativePath(it.projectDir).startsWith('libs/') }) {
+    apply plugin: 'java-library'
+}
+
+subprojects {
     apply plugin: 'idea'
     apply plugin: 'propdeps'
     apply plugin: 'propdeps-maven'

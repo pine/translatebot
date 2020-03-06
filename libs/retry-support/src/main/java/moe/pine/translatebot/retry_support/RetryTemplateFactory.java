@@ -1,4 +1,4 @@
-package moe.pine.translatebot.retry.support;
+package moe.pine.translatebot.retry_support;
 
 import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
@@ -14,10 +14,10 @@ import java.util.stream.Stream;
 public class RetryTemplateFactory {
     @SafeVarargs
     public static RetryTemplate create(
-        final int maxAttempts,
-        final long initialInterval,
-        final double multiplier,
-        final Class<? extends Throwable>... exceptions
+        int maxAttempts,
+        long initialInterval,
+        double multiplier,
+        Class<? extends Throwable>... exceptions
     ) {
         final Map<Class<? extends Throwable>, Boolean> retryableExceptions =
             Stream.of(exceptions)

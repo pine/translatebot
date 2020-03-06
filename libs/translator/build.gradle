@@ -1,5 +1,12 @@
 dependencies {
+    // Sub-projects
+    implementation project(':lib-retry-support')
+
     // Spring Framework
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.retry:spring-retry'
+
+    // Cloud Translation
+    implementation 'com.google.cloud:google-cloud-translate'
 }
