@@ -6,7 +6,7 @@ import moe.pine.translatebot.log.SentLog;
 import moe.pine.translatebot.log.SentLogId;
 import moe.pine.translatebot.log.SentLogRepository;
 import moe.pine.translatebot.services.TextTranslationUtils;
-import moe.pine.translatebot.services.translation.TranslatedText;
+import moe.pine.translatebot.services._translation.TranslatedText;
 import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.SlackClient;
 import moe.pine.translatebot.slack.TextField;
@@ -30,18 +30,18 @@ class MessageChangedEventHandler {
             return;
         }
 
-        final SentLogId sentLogId =
+        SentLogId sentLogId =
             new SentLogId(
                 messageEvent.getChannel(),
                 messageEvent.getMessage().getTs());
-        final Optional<SentLog> sentLogOpt = sentLogRepository.get(sentLogId);
+        Optional<SentLog> sentLogOpt = sentLogRepository.get(sentLogId);
         if (sentLogOpt.isEmpty()) {
             return;
         }
 
-        final String text = messageEvent.getMessage().getText();
-        final List<TranslatedText> translatedTexts = textTranslationUtils.translate(text);
-        final List<TextField> textFields =
+        String text = messageEvent.getMessage().getText();
+        List<TranslatedText> translatedTexts = textTranslationUtils.translate(text);
+        List<TextField> textFields =
             translatedTexts.stream()
                 .map(translatedText ->
                     new TextField(
@@ -49,8 +49,8 @@ class MessageChangedEventHandler {
                         translatedText.getText()))
                 .collect(Collectors.toUnmodifiableList());
 
-        final SentLog sentLog = sentLogOpt.get();
-        final UpdateMessageRequest updateMessageRequest =
+        SentLog sentLog = sentLogOpt.get();
+        UpdateMessageRequest updateMessageRequest =
             UpdateMessageRequest.builder()
                 .channel(sentLog.getChannel())
                 .textFields(textFields)

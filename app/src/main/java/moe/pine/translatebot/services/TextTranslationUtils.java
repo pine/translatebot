@@ -2,9 +2,9 @@ package moe.pine.translatebot.services;
 
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
-import moe.pine.translatebot.services.translation.LabeledTranslator;
-import moe.pine.translatebot.services.translation.TranslatedText;
-import moe.pine.translatebot.services.translation.TranslatorId;
+import moe.pine.translatebot.services._translation.LabeledTranslator;
+import moe.pine.translatebot.services._translation.TranslatedText;
+import moe.pine.translatebot.services._translation.TranslatorId;
 import moe.pine.translatebot.translator.Lang;
 import moe.pine.translatebot.translator.Translator;
 import org.springframework.stereotype.Component;

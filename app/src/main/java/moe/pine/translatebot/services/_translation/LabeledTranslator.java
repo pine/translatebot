@@ -1,4 +1,4 @@
-package moe.pine.translatebot.services.translation;
+package moe.pine.translatebot.services._translation;
 
 import lombok.Value;
 import moe.pine.translatebot.translator.Translator;

@@ -20,17 +20,17 @@ class MessageDeletedEventHandler {
     private final SentLogRepository sentLogRepository;
 
     void execute(MessageEvent messageEvent) {
-        final SentLogId sentLogId =
+        SentLogId sentLogId =
             new SentLogId(
                 messageEvent.getChannel(),
                 messageEvent.getPreviousMessage().getTs());
-        final Optional<SentLog> sentLogOpt = sentLogRepository.get(sentLogId);
+        Optional<SentLog> sentLogOpt = sentLogRepository.get(sentLogId);
         if (sentLogOpt.isEmpty()) {
             return;
         }
 
-        final SentLog sentLog = sentLogOpt.get();
-        final DeleteMessageRequest deleteMessageRequest =
+        SentLog sentLog = sentLogOpt.get();
+        DeleteMessageRequest deleteMessageRequest =
             DeleteMessageRequest.builder()
                 .channel(sentLog.getChannel())
                 .ts(sentLog.getDestinationTs())
