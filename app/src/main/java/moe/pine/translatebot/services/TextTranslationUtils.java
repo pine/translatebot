@@ -5,8 +5,8 @@ import moe.pine.translatebot.services.text_variable.CompositeVariableProcessor;
 import moe.pine.translatebot.services.translation.LabeledTranslator;
 import moe.pine.translatebot.services.translation.TranslatedText;
 import moe.pine.translatebot.services.translation.TranslatorId;
-import moe.pine.translatebot.translator.GcpTranslator;
 import moe.pine.translatebot.translator.Lang;
+import moe.pine.translatebot.translator.Translator;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,12 +28,12 @@ public class TextTranslationUtils {
     public TextTranslationUtils(
         final TextSplitter textSplitter,
         final CompositeVariableProcessor compositeVariableProcessor,
-        final GcpTranslator gcpTranslator
+        final Translator translator
     ) {
         this.textSplitter = textSplitter;
         this.compositeVariableProcessor = compositeVariableProcessor;
         this.translators = List.of(
-            new LabeledTranslator(TranslatorId.GCP_TRANSLATOR, gcpTranslator)
+            new LabeledTranslator(TranslatorId.GCP_TRANSLATOR, translator)
             //    new LabeledTranslator(TranslatorId.MICROSOFT_TRANSLATOR, microsoftTranslator)
         );
     }

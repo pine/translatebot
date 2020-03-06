@@ -1,4 +1,4 @@
-package moe.pine.translatebot.services;
+package moe.pine.translatebot.services.bot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +15,11 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MessageDeletedEventHandler {
+class MessageDeletedEventHandler {
     private final SlackClient slackClient;
     private final SentLogRepository sentLogRepository;
 
-    void execute(final MessageEvent messageEvent) {
+    void execute(MessageEvent messageEvent) {
         final SentLogId sentLogId =
             new SentLogId(
                 messageEvent.getChannel(),

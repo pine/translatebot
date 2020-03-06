@@ -1,10 +1,11 @@
-package moe.pine.translatebot.services;
+package moe.pine.translatebot.services.bot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.log.SentLog;
 import moe.pine.translatebot.log.SentLogRepository;
 import moe.pine.translatebot.properties.SlackProperties;
+import moe.pine.translatebot.services.TextTranslationUtils;
 import moe.pine.translatebot.services.translation.TranslatedText;
 import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.PostMessageRequest;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MessageSentEventHandler {
+class MessageSentEventHandler {
     private static final Pattern EMOTICON_ONLY_TEXT_PATTERN =
         Pattern.compile("^(?:\\s*:[\\w-+]+:)+\\s*$");
 
@@ -30,7 +31,7 @@ public class MessageSentEventHandler {
     private final SentLogRepository sentLogRepository;
     private final TextTranslationUtils textTranslationUtils;
 
-    public void execute(final MessageEvent messageEvent) throws InterruptedException {
+    void execute(MessageEvent messageEvent) throws InterruptedException {
         final Matcher matcher = EMOTICON_ONLY_TEXT_PATTERN.matcher(messageEvent.getText());
         if (matcher.matches()) {
             return;

@@ -1,4 +1,4 @@
-package moe.pine.translatebot.services;
+package moe.pine.translatebot.services.bot;
 
 import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.properties.SlackProperties;
