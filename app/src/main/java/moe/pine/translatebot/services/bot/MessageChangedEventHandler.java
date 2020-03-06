@@ -5,18 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import moe.pine.translatebot.log.SentLog;
 import moe.pine.translatebot.log.SentLogId;
 import moe.pine.translatebot.log.SentLogRepository;
-import moe.pine.translatebot.services.TextTranslationUtils;
-import moe.pine.translatebot.services._translation.TranslatedText;
 import moe.pine.translatebot.services.translation.TranslationService;
 import moe.pine.translatebot.slack.MessageEvent;
 import moe.pine.translatebot.slack.SlackClient;
-import moe.pine.translatebot.slack.TextField;
 import moe.pine.translatebot.slack.UpdateMessageRequest;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component

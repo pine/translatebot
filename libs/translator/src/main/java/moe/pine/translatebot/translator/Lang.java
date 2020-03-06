@@ -2,7 +2,6 @@ package moe.pine.translatebot.translator;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.ObjectUtils;
 
 @Getter
 @RequiredArgsConstructor

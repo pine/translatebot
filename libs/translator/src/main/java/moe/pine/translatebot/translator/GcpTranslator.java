@@ -20,9 +20,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class GcpTranslator implements Translator {
+    private static final Pattern JA_PATTERN =
+        Pattern.compile("\\p{InHiragana}|\\p{InKatakana}|\\p{InCjkUnifiedIdeographs}");
+
     private final TranslationServiceClient translationServiceClient;
     private final LocationName locationName;
     private final RetryTemplate retryTemplate;
@@ -110,6 +115,11 @@ public class GcpTranslator implements Translator {
 
     @Override
     public Mono<Lang> detect(String content) {
+        Matcher matcher = JA_PATTERN.matcher(content);
+        if (matcher.find()) {
+            return Mono.just(Lang.JA);
+        }
+
         return Mono.just(Lang.EN);
     }
 }

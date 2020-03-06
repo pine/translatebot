@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PreDestroy;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -62,10 +61,6 @@ public class BotService {
             return;
         }
         if (StringUtils.isNotEmpty(messageEvent.getBotId())) {
-            return;
-        }
-        Set<String> channels = slackProperties.getChannels();
-        if (!channels.contains(messageEvent.getChannel())) {
             return;
         }
 
