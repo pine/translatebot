@@ -3,9 +3,8 @@ apply plugin: 'org.springframework.boot'
 dependencies {
     // Sub-projects
     implementation project(':lib-log')
+    implementation project(':lib-pref')
     implementation project(':lib-slack')
-
-    // Sub-projects : Translators
     implementation project(':lib-translator')
 
     // Spring Framework

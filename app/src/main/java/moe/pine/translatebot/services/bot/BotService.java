@@ -1,7 +1,6 @@
 package moe.pine.translatebot.services.bot;
 
 import lombok.extern.slf4j.Slf4j;
-import moe.pine.translatebot.properties.SlackProperties;
 import moe.pine.translatebot.slack.Event;
 import moe.pine.translatebot.slack.EventListener;
 import moe.pine.translatebot.slack.MessageEvent;
@@ -17,28 +16,28 @@ import java.time.Instant;
 @Slf4j
 @Service
 public class BotService {
-    private final SlackProperties slackProperties;
     private final SlackClient slackClient;
     private final MessageChangedEventHandler messageChangedEventHandler;
     private final MessageDeletedEventHandler messageDeletedEventHandler;
     private final MessageSentEventHandler messageSentEventHandler;
+    private final IgnoredChannelService ignoredChannelService;
     private final Instant startupTime;
 
     private final EventListener eventConsumer = this::onEvent;
 
     public BotService(
-        SlackProperties slackProperties,
         SlackClient slackClient,
         MessageChangedEventHandler messageChangedEventHandler,
         MessageDeletedEventHandler messageDeletedEventHandler,
         MessageSentEventHandler messageSentEventHandler,
+        IgnoredChannelService ignoredChannelService,
         Clock clock
     ) {
-        this.slackProperties = slackProperties;
         this.slackClient = slackClient;
         this.messageChangedEventHandler = messageChangedEventHandler;
         this.messageDeletedEventHandler = messageDeletedEventHandler;
         this.messageSentEventHandler = messageSentEventHandler;
+        this.ignoredChannelService = ignoredChannelService;
 
         startupTime = clock.instant();
         slackClient.addEventListener(eventConsumer);
@@ -61,6 +60,9 @@ public class BotService {
             return;
         }
         if (StringUtils.isNotEmpty(messageEvent.getBotId())) {
+            return;
+        }
+        if (ignoredChannelService.isIgnored(messageEvent.getChannel())) {
             return;
         }
 
