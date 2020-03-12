@@ -22,26 +22,26 @@ public class SentLogRepository {
     private final SentLogKeyBuilder sentLogKeyBuilder;
 
     public SentLogRepository(
-        final ReactiveStringRedisTemplate redisTemplate,
-        final Duration retentionPeriod
+        ReactiveStringRedisTemplate redisTemplate,
+        Duration retentionPeriod
     ) {
         this(redisTemplate, retentionPeriod, new SentLogKeyBuilder());
     }
 
     SentLogRepository(
-        final ReactiveStringRedisTemplate redisTemplate,
-        final Duration retentionPeriod,
-        final SentLogKeyBuilder sentLogKeyBuilder
+        ReactiveStringRedisTemplate redisTemplate,
+        Duration retentionPeriod,
+        SentLogKeyBuilder sentLogKeyBuilder
     ) {
         this.redisTemplate = redisTemplate;
         this.retentionPeriod = retentionPeriod;
         this.sentLogKeyBuilder = sentLogKeyBuilder;
     }
 
-    public void add(final SentLog sentLog) {
-        final SentLogId sentLogId = new SentLogId(sentLog.getChannel(), sentLog.getSourceTs());
-        final String key = sentLogKeyBuilder.buildKey(sentLogId);
-        final String value;
+    public void add(SentLog sentLog) {
+        SentLogId sentLogId = new SentLogId(sentLog.getChannel(), sentLog.getSourceTs());
+        String key = sentLogKeyBuilder.buildKey(sentLogId);
+        String value;
         try {
             value = OBJECT_MAPPER.writeValueAsString(sentLog);
         } catch (JsonProcessingException e) {
@@ -51,14 +51,14 @@ public class SentLogRepository {
         redisTemplate.opsForValue().set(key, value, retentionPeriod).block(BLOCK_TIMEOUT);
     }
 
-    public Optional<SentLog> get(final SentLogId sentLogId) {
-        final String key = sentLogKeyBuilder.buildKey(sentLogId);
-        final String value = redisTemplate.opsForValue().get(key).block(BLOCK_TIMEOUT);
+    public Optional<SentLog> get(SentLogId sentLogId) {
+        String key = sentLogKeyBuilder.buildKey(sentLogId);
+        String value = redisTemplate.opsForValue().get(key).block(BLOCK_TIMEOUT);
         if (StringUtils.isEmpty(value)) {
             return Optional.empty();
         }
 
-        final SentLog sentLog;
+        SentLog sentLog;
         try {
             sentLog = OBJECT_MAPPER.readValue(value, SentLog.class);
         } catch (JsonProcessingException e) {
