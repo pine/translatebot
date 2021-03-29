@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync(proxyTargetClass = true)
 public class App {
     public static void main(String... args) {
-        AppInitializer.run();
         SpringApplication.run(App.class, args);
     }
 }
