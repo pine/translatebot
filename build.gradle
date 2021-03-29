@@ -1,7 +1,7 @@
 buildscript {
     ext {
         googleCloudBomVersion = '0.110.0-alpha'
-        springBootVersion = '2.2.1.RELEASE'
+        springBootVersion = '2.4.4'
         kotlinVersion = '1.3.50'
         lettuceVersion = '5.2.1.RELEASE'
         lombokVersion = '1.18.6'
